@@ -5,12 +5,17 @@ const Signup = () => {
   const emailRef = useRef();
   const passwordRef = useRef();
 
-  const [errors, setErrors] = useState({ name: "", email: "", password: "" });
+  const [errors, setErrors] = useState({
+    name: "",
+    email: "",
+    password: "",
+    usererror: "",
+  });
 
-  const handleFormSubmit = (e) => {
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
 
-    setErrors({ name: "", email: "", password: "" });
+    setErrors({ name: "", email: "", password: "", usererror: "" });
 
     const name = nameRef.current.value.trim();
     const email = emailRef.current.value.trim();
@@ -41,10 +46,37 @@ const Signup = () => {
       isValid = false;
     }
 
-    setErrors(newErrors);
-
     if (isValid) {
-      console.log("Form submitted", { name, email, password });
+      try {
+        const response = await fetch("http://localhost:3000/user/signup", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ name, email, password }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          console.log("User signed up successfully:", data);
+        } else {
+          if (response.status === 409) {
+            newErrors.usererror = "User already exists with this email";
+          } else {
+            newErrors.usererror = data.message || "An error occurred";
+          }
+          setErrors(newErrors);
+        }
+      } catch (error) {
+        console.error("Error with the signup request:", error);
+        setErrors({
+          ...newErrors,
+          usererror: "Failed to sign up. Please try again.",
+        });
+      }
+    } else {
+      setErrors(newErrors);
     }
   };
 
@@ -132,6 +164,11 @@ const Signup = () => {
               />
               {errors.password && (
                 <p className="text-red-500 text-xs mt-1">{errors.password}</p>
+              )}
+            </div>
+            <div>
+              {errors.usererror && (
+                <p className="text-red-500 text-xs mt-1">{errors.usererror}</p>
               )}
             </div>
 
