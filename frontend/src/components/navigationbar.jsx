@@ -1,4 +1,6 @@
 import React from "react";
+import { Link } from "react-router-dom";
+import { FaUserCircle } from "react-icons/fa";
 
 const NavigationBar = () => {
   return (
@@ -10,19 +12,22 @@ const NavigationBar = () => {
           Expense Tracker
         </div>
         {/* Navigation Links */}
-        <div className="space-x-4">
-          <a href="#" className="hover:underline">
+        <div className="space-x-4 flex items-center gap-5">
+          <Link to={"#"} className="hover:underline">
             Home
-          </a>
-          <a href="#" className="hover:underline">
+          </Link>
+          <Link to="#" className="hover:underline">
             Expenses
-          </a>
-          <a href="#" className="hover:underline">
+          </Link>
+          <Link to="#" className="hover:underline">
             Reports
-          </a>
-          <a href="#" className="hover:underline">
+          </Link>
+          <Link to="#" className="hover:underline">
             Settings
-          </a>
+          </Link>
+          <Link to="#" className="hover:underline ">
+            <FaUserCircle className="w-5 h-5" />
+          </Link>
         </div>
       </div>
     </nav>
