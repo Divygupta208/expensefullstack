@@ -9,7 +9,7 @@ const NavigationBar = () => {
         <div className="text-lg font-bold flex justify-center">
           {" "}
           <img src="public\logoipsum-223.svg" className="w-10 h-10" />
-          Expense Tracker
+          ExpenseDaily
         </div>
         {/* Navigation Links */}
         <div className="space-x-4 flex items-center gap-5">

@@ -1,4 +1,6 @@
 import React, { useRef, useState } from "react";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Signup = () => {
   const nameRef = useRef();
@@ -76,8 +78,8 @@ const Signup = () => {
         if (response.ok) {
           console.log(
             login
-              ? "User logged in successfully:"
-              : "User signed up successfully:",
+              ? toast.success("User logged in successfully:")
+              : toast.success("User signed up successfully:"),
             data
           );
         } else {
@@ -194,7 +196,9 @@ const Signup = () => {
             </div>
             <div>
               {errors.usererror && (
-                <p className="text-red-500 text-xs mt-1">{errors.usererror}</p>
+                <p className="text-red-500 text-sm font-medium">
+                  ({errors.usererror})
+                </p>
               )}
             </div>
 

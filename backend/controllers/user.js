@@ -1,5 +1,6 @@
 const User = require("../models/user");
 const { Op } = require("sequelize");
+const bcrypt = require("bcrypt");
 
 exports.postAddUser = async (req, res, next) => {
   try {
@@ -21,7 +22,9 @@ exports.postAddUser = async (req, res, next) => {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
-    const user = await User.create({ name, email, password });
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = await User.create({ name, email, password: hashedPassword });
 
     res.status(201).json({
       message: "User created successfully",
@@ -48,7 +51,9 @@ exports.postLoginUser = async (req, res, next) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    if (user.password !== password) {
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordValid) {
       return res.status(401).json({ message: "Password is incorrect" });
     }
 
