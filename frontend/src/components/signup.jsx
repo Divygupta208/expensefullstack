@@ -5,6 +5,8 @@ const Signup = () => {
   const emailRef = useRef();
   const passwordRef = useRef();
 
+  const [login, setLogin] = useState(false);
+
   const [errors, setErrors] = useState({
     name: "",
     email: "",
@@ -12,19 +14,27 @@ const Signup = () => {
     usererror: "",
   });
 
+  const loginHandler = () => {
+    setLogin(!login);
+  };
+
   const handleFormSubmit = async (e) => {
     e.preventDefault();
 
     setErrors({ name: "", email: "", password: "", usererror: "" });
 
-    const name = nameRef.current.value.trim();
     const email = emailRef.current.value.trim();
     const password = passwordRef.current.value.trim();
+    let name = null;
+
+    if (!login) {
+      name = nameRef.current.value.trim();
+    }
 
     let isValid = true;
     const newErrors = {};
 
-    if (name === "") {
+    if (!login && name === "") {
       newErrors.name = "Name is required";
       isValid = false;
     }
@@ -48,20 +58,34 @@ const Signup = () => {
 
     if (isValid) {
       try {
-        const response = await fetch("http://localhost:3000/user/signup", {
+        const url = login
+          ? "http://localhost:3000/user/login"
+          : "http://localhost:3000/user/signup";
+        const body = login ? { email, password } : { name, email, password };
+
+        const response = await fetch(url, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ name, email, password }),
+          body: JSON.stringify(body),
         });
 
         const data = await response.json();
 
         if (response.ok) {
-          console.log("User signed up successfully:", data);
+          console.log(
+            login
+              ? "User logged in successfully:"
+              : "User signed up successfully:",
+            data
+          );
         } else {
-          if (response.status === 409) {
+          if (response.status === 404) {
+            newErrors.usererror = "User not found";
+          } else if (response.status === 401) {
+            newErrors.usererror = "Incorrect password or Email !";
+          } else if (response.status === 409) {
             newErrors.usererror = "User already exists with this email";
           } else {
             newErrors.usererror = data.message || "An error occurred";
@@ -69,10 +93,10 @@ const Signup = () => {
           setErrors(newErrors);
         }
       } catch (error) {
-        console.error("Error with the signup request:", error);
+        console.error("Error with the request:", error);
         setErrors({
           ...newErrors,
-          usererror: "Failed to sign up. Please try again.",
+          usererror: "Failed to submit. Please try again.",
         });
       }
     } else {
@@ -107,25 +131,27 @@ const Signup = () => {
             onSubmit={handleFormSubmit}
             className="bg-white p-4 md:p-8 rounded-lg shadow-[10px_5px_60px_10px_rgba(0,0,0,0.3)] w-full"
           >
-            <div className="mb-4">
-              <label
-                htmlFor="name"
-                className="block text-gray-700 text-sm font-bold mb-2"
-              >
-                Name
-              </label>
-              <input
-                ref={nameRef}
-                type="text"
-                id="name"
-                className={`border-2 p-2 w-full rounded-md focus:outline-none ${
-                  errors.name ? "border-red-500" : "border-gray-400"
-                }`}
-              />
-              {errors.name && (
-                <p className="text-red-500 text-xs mt-1">{errors.name}</p>
-              )}
-            </div>
+            {!login && (
+              <div className="mb-4">
+                <label
+                  htmlFor="name"
+                  className="block text-gray-700 text-sm font-bold mb-2"
+                >
+                  Name
+                </label>
+                <input
+                  ref={nameRef}
+                  type="text"
+                  id="name"
+                  className={`border-2 p-2 w-full rounded-md focus:outline-none ${
+                    errors.name ? "border-red-500" : "border-gray-400"
+                  }`}
+                />
+                {errors.name && (
+                  <p className="text-red-500 text-xs mt-1">{errors.name}</p>
+                )}
+              </div>
+            )}
 
             <div className="mb-4">
               <label
@@ -172,12 +198,43 @@ const Signup = () => {
               )}
             </div>
 
-            <button
-              type="submit"
-              className="bg-[#000000] text-white font-bold py-2 px-4 rounded hover:bg-blue-700 w-36 mx-40"
-            >
-              Sign Up
-            </button>
+            {!login ? (
+              <button
+                type="submit"
+                className="bg-[#000000] text-white font-bold py-2 px-4 rounded hover:bg-cyan-800 w-36 mx-44"
+              >
+                Sign Up
+              </button>
+            ) : (
+              <button
+                type="submit"
+                className="bg-[#000000] text-white font-bold py-2 px-4 rounded hover:bg-cyan-800 w-36 mx-44"
+              >
+                Log In
+              </button>
+            )}
+
+            {!login ? (
+              <div className="flex justify-center gap-2 mt-5">
+                <p className=" text-green-600">Already Have An Account?</p>
+                <div
+                  onClick={loginHandler}
+                  className=" font-bold cursor-pointer"
+                >
+                  Log In
+                </div>
+              </div>
+            ) : (
+              <div className="flex justify-center gap-2 mt-5">
+                <p className=" text-green-600">Create An Account?</p>
+                <div
+                  onClick={loginHandler}
+                  className=" font-bold cursor-pointer"
+                >
+                  Sign Up
+                </div>
+              </div>
+            )}
           </form>
         </div>
       </div>
