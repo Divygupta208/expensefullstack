@@ -1,11 +1,14 @@
 import React, { useRef, useState } from "react";
+import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { authAction } from "../store/store";
 
 const Signup = () => {
   const nameRef = useRef();
   const emailRef = useRef();
   const passwordRef = useRef();
+  const dispatch = useDispatch();
 
   const [login, setLogin] = useState(false);
 
@@ -82,6 +85,10 @@ const Signup = () => {
               : toast.success("User signed up successfully:"),
             data
           );
+
+          if (login) {
+            dispatch(authAction.setIsLoggedIn(true));
+          }
         } else {
           if (response.status === 404) {
             newErrors.usererror = "User not found";
@@ -197,7 +204,7 @@ const Signup = () => {
             <div>
               {errors.usererror && (
                 <p className="text-red-500 text-sm font-medium">
-                  ({errors.usererror})
+                  {errors.usererror}
                 </p>
               )}
             </div>
