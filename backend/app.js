@@ -8,8 +8,9 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 const userRoute = require("./routes/user");
-
+const expenseRoute = require("./routes/expense");
 app.use("/user", userRoute);
+app.use("/expense", expenseRoute);
 
 sequelize
   .sync()
