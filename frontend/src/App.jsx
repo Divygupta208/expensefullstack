@@ -4,8 +4,6 @@ import Layout from "./pages/layout";
 
 import UserHomePage from "./pages/UserHomePage";
 
-import AddExpense from "./components/add-expense";
-
 function App() {
   return (
     <>

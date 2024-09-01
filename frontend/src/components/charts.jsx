@@ -1,4 +1,5 @@
 import React from "react";
+import { useSelector } from "react-redux";
 import {
   PieChart,
   Pie,
@@ -12,24 +13,13 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-// Sample data from backend
-const expenses = [
-  { id: 1, description: "Lunch", amount: 15.0, date: "2024-08-30" },
-  { id: 2, description: "Groceries", amount: 45.5, date: "2024-08-29" },
-  { id: 3, description: "Electricity Bill", amount: 60.0, date: "2024-08-28" },
-  { id: 4, description: "Lunch", amount: 70.0, date: "2024-08-28" },
-  { id: 4, description: "Makeup", amount: 70.0, date: "2024-08-28" },
-  // Add more expenses as needed
-];
-
-// Process data for Pie Chart
 const processCategoryData = (expenses) => {
   const categories = expenses.reduce((acc, expense) => {
-    const category = expense.description; // Replace with actual category if available
+    const category = expense.category;
     if (!acc[category]) {
       acc[category] = 0;
     }
-    acc[category] += expense.amount;
+    acc[category] += parseFloat(expense.price);
     return acc;
   }, {});
 
@@ -39,9 +29,7 @@ const processCategoryData = (expenses) => {
   }));
 };
 
-// Process data for Bar Chart
 const processMonthlyData = (expenses) => {
-  // Initialize all months with 0 expenses
   const monthlyExpenses = {
     Jan: 0,
     Feb: 0,
@@ -58,26 +46,28 @@ const processMonthlyData = (expenses) => {
   };
 
   expenses.forEach((expense) => {
-    const date = new Date(expense.date);
-    const month = date.toLocaleString("default", { month: "short" }); // Get the short month name (e.g., "Jan")
-    monthlyExpenses[month] += expense.amount;
+    const date = new Date(expense.createdAt);
+    const month = date.toLocaleString("default", { month: "short" });
+    monthlyExpenses[month] += parseFloat(expense.price);
   });
 
-  // Convert the object to an array of objects
   return Object.keys(monthlyExpenses).map((month) => ({
     name: month,
     expenses: monthlyExpenses[month],
   }));
 };
+
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
 const Charts = () => {
+  const expenses = useSelector((state) => state.expense.items);
+
   const categoryData = processCategoryData(expenses);
   const monthlyData = processMonthlyData(expenses);
 
   return (
     <div className="w-full md:w-1/2 lg:w-[40vw] p-0 max-h-[80vh] ml-10">
-      <div className="bg-white p-6 rounded-lg shadow-2xl mb-2 ">
+      <div className="bg-white p-6 rounded-lg shadow-2xl mb-2">
         <h2 className="text-xl font-bold mb-4 text-gray-900">
           Expenses by Category
         </h2>

@@ -1,27 +1,43 @@
-import React, { useState } from "react";
-import { useSelector } from "react-redux";
+import React, { useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { motion } from "framer-motion";
+import { expenseAction } from "../store/expense-slice";
 
 const AddExpense = () => {
-  const [price, setPrice] = useState("");
-  const [description, setDescription] = useState("");
-  const [category, setCategory] = useState("");
+  const priceRef = useRef();
+  const descriptionRef = useRef();
+  const categoryRef = useRef();
   const openAddForm = useSelector((state) => state.util.openAddForm);
+  const dispatch = useDispatch();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("Submitting form");
 
     const newExpense = {
-      price,
-      description,
-      category,
+      price: parseFloat(priceRef.current.value),
+      description: descriptionRef.current.value,
+      category: categoryRef.current.value,
     };
 
-    console.log("New Expense Added:", newExpense);
+    try {
+      const response = await fetch("http://localhost:3000/expense/addexpense", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newExpense),
+      });
 
-    setPrice("");
-    setDescription("");
-    setCategory("Groceries");
+      if (response.ok) {
+        const data = await response.json();
+        dispatch(expenseAction.addOneExpense(data.expense));
+        console.log(data);
+      } else {
+      }
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   return (
@@ -29,7 +45,7 @@ const AddExpense = () => {
       {openAddForm && (
         <motion.div
           initial={{ x: -100, y: 100, scale: 0, opacity: 0 }}
-          animate={{ opacity: 1, y: -20, x: 30, scale: 1 }}
+          animate={{ opacity: 1, y: -20, x: 200, scale: 1 }}
           exit={{ x: -100, y: 100, scale: 0, opacity: 0 }}
           transition={{ duration: 0.1 }}
           className="absolute container mx-auto p-4 bg-gray-300 w-[52vw] h-[71vh] bottom-8 rounded-md"
@@ -45,8 +61,7 @@ const AddExpense = () => {
               <input
                 id="price"
                 type="number"
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
+                ref={priceRef}
                 className="mt-1 block w-full h-9 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                 placeholder="Enter price"
                 required
@@ -63,8 +78,7 @@ const AddExpense = () => {
               <input
                 id="description"
                 type="text"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                ref={descriptionRef}
                 className="mt-1 h-9 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                 placeholder="Enter description"
                 required
@@ -80,8 +94,7 @@ const AddExpense = () => {
               </label>
               <select
                 id="category"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
+                ref={categoryRef}
                 className="mt-1 block h-9 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                 required
               >
