@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
+import { RiDeleteBin4Fill } from "react-icons/ri";
 import expenseSlice, { expenseAction } from "../store/expense-slice";
 
 const ExpenseList = () => {
@@ -27,7 +28,7 @@ const ExpenseList = () => {
             key={expense.id}
             className="p-1 bg-white rounded-sm shadow-lg transform transition-transform"
             whileHover={{
-              scale: 1.05,
+              scale: 1.02,
               boxShadow: "0px 10px 30px rgba(0,0,0,0.2)",
             }}
             whileTap={{ scale: 0.95 }}
@@ -44,8 +45,10 @@ const ExpenseList = () => {
               </p>
               <Link
                 to={`/expenses/${expense.id}`}
-                className="text-blue-500 hover:underline"
-              ></Link>
+                className="text-red-500 hover:underline"
+              >
+                <RiDeleteBin4Fill className="hover:scale-125" />
+              </Link>
             </div>
           </motion.li>
         ))}
