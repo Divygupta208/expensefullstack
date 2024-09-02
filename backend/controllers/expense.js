@@ -43,3 +43,22 @@ exports.getExpenses = async (req, res) => {
     return res.status(500).json({ message: "Failed to fetch expenses." });
   }
 };
+
+exports.deleteExpense = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const result = await Expense.destroy({ where: { id } });
+
+    if (result === 1) {
+      res.status(200).json({ message: "Expense deleted successfully" });
+    } else {
+      res.status(404).json({ message: "Expense not found" });
+    }
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ message: "Failed to delete expense", error: error.message });
+  }
+};
