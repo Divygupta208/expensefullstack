@@ -3,12 +3,14 @@ import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { authAction } from "../store/store";
+import { useNavigate } from "react-router-dom";
 
 const Signup = () => {
   const nameRef = useRef();
   const emailRef = useRef();
   const passwordRef = useRef();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const [login, setLogin] = useState(false);
 
@@ -88,6 +90,7 @@ const Signup = () => {
 
           if (login) {
             dispatch(authAction.setIsLoggedIn(true));
+            navigate("/Home");
           }
         } else {
           if (response.status === 404) {

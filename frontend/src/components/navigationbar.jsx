@@ -1,12 +1,27 @@
 import React, { useState } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { FaUserCircle } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
+import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const NavigationBar = () => {
+  const navigate = useNavigate();
+  const userLoggedIn =
+    useSelector((state) => state.auth.isLoggedIn) ||
+    localStorage.getItem("isLoggedIn");
   const [openHomeNav, setHomeNav] = useState(false);
   const toggleHomeNavBar = () => {
     setHomeNav(!openHomeNav);
+  };
+
+  const handleHomeClick = () => {
+    if (userLoggedIn) {
+      navigate("/Home");
+    } else {
+      toast.warning("Please Log In");
+    }
   };
 
   return (
@@ -21,16 +36,12 @@ const NavigationBar = () => {
             />
             <span className="ml-2">ExpenseDaily</span>
           </div>
-          {/* Navigation Links */}
+
           <div className="space-x-4 flex items-center gap-5">
-            <Link to="#" className="hover:underline">
+            <Link onClick={handleHomeClick} className="hover:underline">
               Home
             </Link>
-            <Link
-              to="/Home"
-              onClick={toggleHomeNavBar}
-              className="hover:underline"
-            >
+            <Link to="/" onClick={toggleHomeNavBar} className="hover:underline">
               Expenses
             </Link>
             <Link to="#" className="hover:underline">
