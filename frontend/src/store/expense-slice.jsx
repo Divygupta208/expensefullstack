@@ -28,6 +28,11 @@ const expenseSlice = createSlice({
     addOneExpense: (state, action) => {
       state.items.push(action.payload);
     },
+    removeExpense: (state, action) => {
+      state.items = state.items.filter(
+        (expense) => expense.id !== action.payload
+      );
+    },
   },
 });
 export const expenseAction = {
