@@ -4,6 +4,8 @@ import { motion } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 import { RiDeleteBin4Fill } from "react-icons/ri";
 import expenseSlice, { expenseAction } from "../store/expense-slice";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const ExpenseList = () => {
   const dispatch = useDispatch();
@@ -13,6 +15,28 @@ const ExpenseList = () => {
   }, [dispatch]);
 
   const expenses = useSelector((state) => state.expense.items);
+
+  const handleDelete = async (id) => {
+    try {
+      const response = await fetch(
+        `http://localhost:3000/expense/delete/${id}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log(data.message);
+        toast.success(data.message);
+        dispatch(expenseAction.removeExpense(id));
+      } else {
+        console.error("Failed to delete expense");
+      }
+    } catch (err) {
+      console.error("Error deleting expense:", err);
+    }
+  };
 
   return (
     <motion.div
@@ -44,8 +68,9 @@ const ExpenseList = () => {
                 ${parseFloat(expense.price).toFixed(2) || "0.00"}
               </p>
               <Link
-                to={`/expenses/${expense.id}`}
+                to={``}
                 className="text-red-500 hover:underline"
+                onClick={() => handleDelete(expense.id)}
               >
                 <RiDeleteBin4Fill className="hover:scale-125" />
               </Link>
