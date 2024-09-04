@@ -9,7 +9,9 @@ const AddExpense = () => {
   const categoryRef = useRef();
   const openAddForm = useSelector((state) => state.util.openAddForm);
   const dispatch = useDispatch();
-
+  const token =
+    useSelector((state) => state.auth.authToken) ||
+    localStorage.getItem("token");
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("Submitting form");
@@ -25,6 +27,7 @@ const AddExpense = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(newExpense),
       });

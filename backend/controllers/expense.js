@@ -2,9 +2,11 @@ const Expense = require("../models/expense");
 
 exports.postAddExpense = async (req, res, next) => {
   const { price, description, category } = req.body;
-  console.log("Received request to add expense");
+
   try {
-    const expense = await Expense.create({
+    const user = req.user;
+
+    const expense = await user.createExpense({
       price,
       description,
       category,
@@ -27,8 +29,12 @@ exports.postAddExpense = async (req, res, next) => {
 };
 
 exports.getExpenses = async (req, res) => {
+  const userId = req.user.id;
+
   try {
-    const expenses = await Expense.findAll();
+    const expenses = await Expense.findAll({
+      where: { userId },
+    });
 
     const formattedExpenses = expenses.map((expense) => {
       return {
@@ -46,14 +52,15 @@ exports.getExpenses = async (req, res) => {
 
 exports.deleteExpense = async (req, res) => {
   const { id } = req.params;
+  const userId = req.user.id;
 
   try {
-    const result = await Expense.destroy({ where: { id } });
+    const result = await Expense.destroy({ where: { id, userId } });
 
     if (result === 1) {
       res.status(200).json({ message: "Expense deleted successfully" });
     } else {
-      res.status(404).json({ message: "Expense not found" });
+      res.status(404).json({ message: "Expense not found or not authorized" });
     }
   } catch (error) {
     console.error(error);

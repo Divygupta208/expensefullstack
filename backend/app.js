@@ -7,10 +7,17 @@ app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
+const authenticateUser = require("./middleware/authuser");
+
 const userRoute = require("./routes/user");
 const expenseRoute = require("./routes/expense");
+const User = require("./models/user");
+const Expense = require("./models/expense");
 app.use("/user", userRoute);
-app.use("/expense", expenseRoute);
+app.use("/expense", authenticateUser, expenseRoute);
+
+User.hasMany(Expense);
+Expense.belongsTo(User);
 
 sequelize
   .sync()

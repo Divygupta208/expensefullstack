@@ -2,8 +2,15 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const fetchExpenses = () => {
   return async (dispatch) => {
+    const token = localStorage.getItem("token");
     try {
-      const response = await fetch("http://localhost:3000/expense/getexpense");
+      const response = await fetch("http://localhost:3000/expense/getexpense", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (!response.ok) {
         throw new Error("Failed to fetch expenses");
       }
@@ -32,6 +39,9 @@ const expenseSlice = createSlice({
       state.items = state.items.filter(
         (expense) => expense.id !== action.payload
       );
+    },
+    resetExpenses: (state) => {
+      state.items = [];
     },
   },
 });

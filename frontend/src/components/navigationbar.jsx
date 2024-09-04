@@ -16,14 +16,6 @@ const NavigationBar = () => {
     setHomeNav(!openHomeNav);
   };
 
-  const handleHomeClick = () => {
-    if (userLoggedIn) {
-      navigate("/Home");
-    } else {
-      toast.warning("Please Log In");
-    }
-  };
-
   return (
     <>
       <nav className="bg-[#060606] text-white p-4 shadow-lg">
@@ -38,7 +30,16 @@ const NavigationBar = () => {
           </div>
 
           <div className="space-x-4 flex items-center gap-5">
-            <Link onClick={handleHomeClick} className="hover:underline">
+            <Link
+              to={userLoggedIn ? "/Home" : "#"}
+              onClick={(e) => {
+                if (!userLoggedIn) {
+                  e.preventDefault();
+                  toast.warning("Please Log In");
+                }
+              }}
+              className="hover:underline"
+            >
               Home
             </Link>
             <Link to="/" onClick={toggleHomeNavBar} className="hover:underline">

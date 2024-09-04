@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { authAction } from "../store/store";
 import { useNavigate } from "react-router-dom";
+import { expenseAction } from "../store/expense-slice";
 
 const Signup = () => {
   const nameRef = useRef();
@@ -84,12 +85,15 @@ const Signup = () => {
           console.log(
             login
               ? toast.success("User logged in successfully:")
-              : toast.success("User signed up successfully:"),
+              : toast.success(
+                  "Account Created Successfully , Please Log in To Continue:"
+                ),
             data
           );
 
           if (login) {
-            dispatch(authAction.setIsLoggedIn(true));
+            dispatch(authAction.setToken(data.token));
+            dispatch(expenseAction.resetExpenses());
             navigate("/Home");
           }
         } else {
