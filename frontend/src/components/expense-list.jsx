@@ -17,11 +17,16 @@ const ExpenseList = () => {
   const expenses = useSelector((state) => state.expense.items);
 
   const handleDelete = async (id) => {
+    const token = localStorage.getItem("token");
     try {
       const response = await fetch(
         `http://localhost:3000/expense/delete/${id}`,
         {
           method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
 
