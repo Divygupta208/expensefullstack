@@ -93,6 +93,7 @@ const Signup = () => {
 
           if (login) {
             dispatch(authAction.setToken(data.token));
+            dispatch(authAction.setIsPremium(data.isPremium));
             dispatch(expenseAction.resetExpenses());
             navigate("/Home");
           }

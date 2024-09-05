@@ -2,17 +2,24 @@ import React, { useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { FaUserCircle } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { IoDiamond } from "react-icons/io5";
+import { authAction } from "../store/store";
 
 const NavigationBar = () => {
   const navigate = useNavigate();
+  const isPremiumUser =
+    useSelector((state) => state.auth.isPremiumUser) ||
+    localStorage.getItem("isPremium");
   const userLoggedIn =
     useSelector((state) => state.auth.isLoggedIn) ||
     localStorage.getItem("isLoggedIn");
   const [openHomeNav, setHomeNav] = useState(false);
   const [openProfileView, setProfileView] = useState(false);
+
+  const dispatch = useDispatch();
   const toggleHomeNavBar = () => {
     setHomeNav(!openHomeNav);
   };
@@ -30,27 +37,42 @@ const NavigationBar = () => {
   const handleRazorPayButtonClick = async (e) => {
     const token = localStorage.getItem("token");
 
-    const response = await axios.get(
+    const response = await fetch(
       "http://localhost:3000/purchase/premiummembership",
       {
-        headers: { Authorization: token },
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       }
     );
+    const data = await response.json();
 
-    var options = {
-      key: response.data.key_id,
-      order_id: response.data.order.id,
+    const options = {
+      key: data.key_id,
+      order_id: data.order.id,
       handler: async function (response) {
-        await axios.post(
+        const updateResponse = await fetch(
           "http://localhost:3000/purchase/updatetransactionstatus",
           {
-            order_id: options.order_id,
-            payment_id: response.razorpay_payment_id,
-          },
-          {
-            headers: { Authorization: token },
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              order_id: options.order_id,
+              payment_id: response.razorpay_payment_id,
+            }),
           }
         );
+
+        const result = await updateResponse.json();
+
+        if (result.success) {
+          toast("YaY are now a premium user!");
+          dispatch(authAction.setIsPremium(true));
+        }
       },
     };
 
@@ -60,7 +82,7 @@ const NavigationBar = () => {
 
     rzp1.on("payment.failed", function (response) {
       console.log(response);
-      alert("Something went wrong");
+      toast("Something went wrong");
     });
   };
 
@@ -128,12 +150,18 @@ const NavigationBar = () => {
               <h3 className="text-lg font-semibold">{userProfile.name}</h3>
               <p className="text-sm text-gray-600">{userProfile.email}</p>
               <p className="text-sm text-gray-600">{userProfile.contact}</p>
-              <button
-                onClick={handleRazorPayButtonClick}
-                className="mt-4 px-4 py-2 bg-[#7b39ff] text-white rounded-md"
-              >
-                Buy Premium
-              </button>
+              {!isPremiumUser ? (
+                <button
+                  onClick={handleRazorPayButtonClick}
+                  className="mt-4 px-4 py-2 bg-[#7b39ff] text-white rounded-md"
+                >
+                  Buy Premium
+                </button>
+              ) : (
+                <p>
+                  <IoDiamond />
+                </p>
+              )}
             </div>
           </motion.div>
         )}
