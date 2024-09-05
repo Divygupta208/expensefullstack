@@ -12,8 +12,56 @@ const NavigationBar = () => {
     useSelector((state) => state.auth.isLoggedIn) ||
     localStorage.getItem("isLoggedIn");
   const [openHomeNav, setHomeNav] = useState(false);
+  const [openProfileView, setProfileView] = useState(false);
   const toggleHomeNavBar = () => {
     setHomeNav(!openHomeNav);
+  };
+  const toggleProfileView = () => {
+    setProfileView(!openProfileView);
+  };
+
+  const userProfile = {
+    image: "https://via.placeholder.com/100", // Replace with actual image source
+    name: "John Doe", // Replace with actual user name
+    email: "john.doe@example.com", // Replace with actual user email
+    contact: "+1234567890", // Replace with actual user contact
+  };
+
+  const handleRazorPayButtonClick = async (e) => {
+    const token = localStorage.getItem("token");
+
+    const response = await axios.get(
+      "http://localhost:3000/purchase/premiummembership",
+      {
+        headers: { Authorization: token },
+      }
+    );
+
+    var options = {
+      key: response.data.key_id,
+      order_id: response.data.order.id,
+      handler: async function (response) {
+        await axios.post(
+          "http://localhost:3000/purchase/updatetransactionstatus",
+          {
+            order_id: options.order_id,
+            payment_id: response.razorpay_payment_id,
+          },
+          {
+            headers: { Authorization: token },
+          }
+        );
+      },
+    };
+
+    const rzp1 = new Razorpay(options);
+    rzp1.open();
+    e.preventDefault();
+
+    rzp1.on("payment.failed", function (response) {
+      console.log(response);
+      alert("Something went wrong");
+    });
   };
 
   return (
@@ -22,7 +70,7 @@ const NavigationBar = () => {
         <div className="container mx-auto flex justify-between items-center">
           <div className="text-lg font-bold flex items-center">
             <img
-              src="public\logoipsum-223.svg"
+              src="public/logoipsum-223.svg"
               className="w-10 h-10"
               alt="Logo"
             />
@@ -42,7 +90,7 @@ const NavigationBar = () => {
             >
               Home
             </Link>
-            <Link to="/" onClick={toggleHomeNavBar} className="hover:underline">
+            <Link to="#" onClick={toggleHomeNavBar} className="hover:underline">
               Expenses
             </Link>
             <Link to="#" className="hover:underline">
@@ -51,12 +99,45 @@ const NavigationBar = () => {
             <Link to="#" className="hover:underline">
               Settings
             </Link>
-            <Link to="#" className="hover:underline">
+            <Link
+              to="#"
+              onClick={toggleProfileView}
+              className="hover:underline"
+            >
               <FaUserCircle className="w-5 h-5" />
             </Link>
           </div>
         </div>
       </nav>
+
+      <AnimatePresence>
+        {openProfileView && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3 }}
+            className="absolute top-16 right-4 w-64 bg-[#d6d6d6] text-black p-4 shadow-lg rounded-lg z-50"
+          >
+            <div className="flex flex-col items-center">
+              <img
+                src={userProfile.image}
+                alt="User Profile"
+                className="w-20 h-20 rounded-full mb-4"
+              />
+              <h3 className="text-lg font-semibold">{userProfile.name}</h3>
+              <p className="text-sm text-gray-600">{userProfile.email}</p>
+              <p className="text-sm text-gray-600">{userProfile.contact}</p>
+              <button
+                onClick={handleRazorPayButtonClick}
+                className="mt-4 px-4 py-2 bg-[#7b39ff] text-white rounded-md"
+              >
+                Buy Premium
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <AnimatePresence>
         {openHomeNav && (
