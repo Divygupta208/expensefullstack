@@ -68,7 +68,9 @@ exports.postLoginUser = async (req, res, next) => {
       { expiresIn: "1h" }
     );
 
-    return res.status(200).json({ token, userId: user.id });
+    return res
+      .status(200)
+      .json({ token, userId: user.id, isPremium: user.isPremium });
   } catch (error) {
     console.error("Error during user login:", error);
     return res
