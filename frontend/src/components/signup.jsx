@@ -1,4 +1,5 @@
 import React, { useRef, useState } from "react";
+import { jwtDecode } from "jwt-decode";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -92,8 +93,10 @@ const Signup = () => {
           );
 
           if (login) {
+            const decodedToken = jwtDecode(data.token);
+            const isPremium = decodedToken.isPremium;
             dispatch(authAction.setToken(data.token));
-            dispatch(authAction.setIsPremium(data.isPremium));
+            dispatch(authAction.setIsPremium(isPremium));
             dispatch(expenseAction.resetExpenses());
             navigate("/Home");
           }

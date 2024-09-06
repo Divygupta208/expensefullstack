@@ -7,12 +7,14 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { IoDiamond } from "react-icons/io5";
 import { authAction } from "../store/store";
+import { jwtDecode } from "jwt-decode";
 
 const NavigationBar = () => {
   const navigate = useNavigate();
-  const isPremiumUser =
-    useSelector((state) => state.auth.isPremiumUser) ||
-    localStorage.getItem("isPremium");
+  const isPremiumUser = JSON.parse(
+    localStorage.getItem("isPremium") || "false"
+  );
+  console.log(isPremiumUser);
   const userLoggedIn =
     useSelector((state) => state.auth.isLoggedIn) ||
     localStorage.getItem("isLoggedIn");
@@ -71,7 +73,10 @@ const NavigationBar = () => {
 
         if (result.success) {
           toast("YaY are now a premium user!");
-          dispatch(authAction.setIsPremium(true));
+          localStorage.setItem("token", result.token);
+          const decodedToken = jwtDecode(result.token);
+          const isPremium = decodedToken.isPremium;
+          dispatch(authAction.setIsPremium(isPremium));
         }
       },
     };
@@ -80,9 +85,21 @@ const NavigationBar = () => {
     rzp1.open();
     e.preventDefault();
 
-    rzp1.on("payment.failed", function (response) {
-      console.log(response);
-      toast("Something went wrong");
+    rzp1.on("payment.failed", async function (response) {
+      console.log("Payment Failed: ", response);
+
+      await fetch("http://localhost:3000/purchase/updatetransactionstatus", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          order_id: options.order_id,
+        }),
+      });
+
+      toast("Payment failed. Please try again.");
     });
   };
 
@@ -115,7 +132,16 @@ const NavigationBar = () => {
             <Link to="#" onClick={toggleHomeNavBar} className="hover:underline">
               Expenses
             </Link>
-            <Link to="#" className="hover:underline">
+            <Link
+              to={isPremiumUser ? "/reports" : "#"}
+              onClick={(e) => {
+                if (!isPremiumUser) {
+                  e.preventDefault();
+                  toast.warning("Please Subscribe to Check Premium Features");
+                }
+              }}
+              className="hover:underline"
+            >
               Reports
             </Link>
             <Link to="#" className="hover:underline">
@@ -139,7 +165,7 @@ const NavigationBar = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.3 }}
-            className="absolute top-16 right-4 w-64 bg-[#d6d6d6] text-black p-4 shadow-lg rounded-lg z-50"
+            className="absolute top-16 right-4 w-64 bg-[#e6e6e6] text-black p-4 shadow-lg rounded-lg z-50"
           >
             <div className="flex flex-col items-center">
               <img
@@ -153,9 +179,9 @@ const NavigationBar = () => {
               {!isPremiumUser ? (
                 <button
                   onClick={handleRazorPayButtonClick}
-                  className="mt-4 px-4 py-2 bg-[#7b39ff] text-white rounded-md"
+                  className="mt-4 px-6 py-2 gap-1 bg-[#ff662a] text-white font-semibold rounded-md flex"
                 >
-                  Buy Premium
+                  Buy <IoDiamond className="mt-1.5" />
                 </button>
               ) : (
                 <p>
@@ -170,39 +196,39 @@ const NavigationBar = () => {
       <AnimatePresence>
         {openHomeNav && (
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
+            initial={{ opacity: 1, y: -10 }}
+            animate={{ opacity: 1, y: 5 }}
+            exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.3 }}
-            className="fixed top-16 left-0 right-0 bg-black p-4 text-white z-50"
+            className="fixed top-16 left-0 right-0 bg-gray-200 p-4 text-white z-50"
           >
             <div className="container mx-auto flex justify-between items-center">
               <div className="flex space-x-4">
                 <NavLink
-                  to="/Home/daily"
+                  to="#"
                   className={({ isActive }) =>
                     isActive
-                      ? "bg-blue-700 px-3 py-2 rounded-md text-sm font-medium"
+                      ? "bg-teal-500 px-3 py-2 rounded-md text-sm font-medium"
                       : "px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-500"
                   }
                 >
                   Daily Expenses
                 </NavLink>
                 <NavLink
-                  to="/Home/monthly"
+                  to="#"
                   className={({ isActive }) =>
                     isActive
-                      ? "bg-blue-700 px-3 py-2 rounded-md text-sm font-medium"
+                      ? "bg-teal-500 px-3 py-2 rounded-md text-sm font-medium"
                       : "px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-500"
                   }
                 >
                   Monthly Expenses
                 </NavLink>
                 <NavLink
-                  to="/Home/yearly"
+                  to="/Home"
                   className={({ isActive }) =>
                     isActive
-                      ? "bg-blue-700 px-3 py-2 rounded-md text-sm font-medium"
+                      ? "bg-teal-500 px-3 py-2 rounded-md text-sm font-medium"
                       : "px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-500"
                   }
                 >
@@ -216,7 +242,7 @@ const NavigationBar = () => {
                   placeholder="Search expenses"
                   className="px-4 py-2 rounded-md text-gray-900"
                 />
-                <button className="ml-2 px-3 py-2 bg-green-500 rounded-md text-sm font-medium">
+                <button className="ml-2 px-3 py-2 bg-teal-500 rounded-md text-sm font-medium">
                   Search
                 </button>
               </div>

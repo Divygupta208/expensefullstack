@@ -45,17 +45,19 @@ const ExpenseList = () => {
 
   return (
     <motion.div
-      className=" w-full max-h-[70vh] ml-8 mt-5 md:w-1/3 lg:w-1/2 bg-gradient-to-r from-black via-slate-800 to-black p-6 rounded-lg shadow-[0px_15px_30px_rgba(0,0,0,0.3)]"
+      className=" w-full max-h-[70vh] ml-8 mt-5 md:w-1/3 lg:w-1/2 bg-gray-100 p-6 rounded-lg shadow-[0px_15px_30px_rgba(0,0,0,0.3)] flex flex-col text-center"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <h2 className="text-2xl font-extrabold text-white mb-6">Expense List</h2>
+      <h2 className="text-2xl font-bold text-[#000000] mb-6 bg-[#6524d753] rounded-md p-2">
+        Expenditure
+      </h2>
       <ul className="space-y-6">
         {expenses.map((expense) => (
           <motion.li
             key={expense.id}
-            className="p-1 bg-white rounded-sm shadow-lg transform transition-transform"
+            className="p-1 bg-[#b0b0b068] rounded-lg shadow-lg transform transition-transform"
             whileHover={{
               scale: 1.02,
               boxShadow: "0px 10px 30px rgba(0,0,0,0.2)",

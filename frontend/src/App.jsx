@@ -1,28 +1,45 @@
-import { Navigate, Route, Routes } from "react-router-dom";
+import { useEffect } from "react";
+import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import SignupPage from "./pages/signuppage";
 import Layout from "./pages/layout";
-
 import UserHomePage from "./pages/UserHomePage";
+import { jwtDecode } from "jwt-decode"; // Note: You don't need to use destructuring here
 import { useSelector } from "react-redux";
+import ReportsPage from "./pages/reportspage";
 
 function App() {
-  const userLoggedIn =
-    useSelector((state) => state.auth.isLoggedIn) ||
-    localStorage.getItem("isLoggedIn");
+  const navigate = useNavigate();
+  const token = localStorage.getItem("token");
+
+  useEffect(() => {
+    if (token) {
+      try {
+        const decodedToken = jwtDecode(token);
+
+        if (decodedToken.exp * 1000 < Date.now()) {
+          localStorage.removeItem("token");
+          navigate("/");
+        }
+      } catch (error) {
+        console.error("Invalid token", error);
+
+        localStorage.removeItem("token");
+        navigate("/");
+      }
+    }
+  }, [token, navigate]);
 
   return (
     <>
       <Routes>
-        <Route path="/" element=<Layout />>
+        <Route path="/" element={<Layout />}>
           <Route path="/" element={<SignupPage />} />
           <Route
             path="/Home"
-            element={userLoggedIn ? <UserHomePage /> : <Navigate to="/" />}
-          >
-            {/* <Route path="daily" element={""} />
-            <Route path="monthly" element={""} />
-            <Route path="yearly" element={""} /> */}
-          </Route>
+            element={token ? <UserHomePage /> : <Navigate to="/" />}
+          ></Route>
+
+          <Route path="reports" element={<ReportsPage />} />
         </Route>
       </Routes>
     </>
