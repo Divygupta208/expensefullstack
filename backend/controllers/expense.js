@@ -1,16 +1,27 @@
 const Expense = require("../models/expense");
+const sequelize = require("../util/database");
 
 exports.postAddExpense = async (req, res, next) => {
   const { price, description, category } = req.body;
 
+  const t = await sequelize.transaction();
+
   try {
     const user = req.user;
 
-    const expense = await user.createExpense({
-      price,
-      description,
-      category,
-    });
+    const expense = await user.createExpense(
+      {
+        price,
+        description,
+        category,
+      },
+      { transaction: t }
+    );
+
+    user.totalExpense = (user.totalExpense || 0) + price;
+    await user.save({ transaction: t });
+
+    await t.commit();
 
     return res.status(201).json({
       message: "Expense added successfully",
@@ -20,7 +31,9 @@ exports.postAddExpense = async (req, res, next) => {
       },
     });
   } catch (error) {
-    console.error(error);
+    await t.rollback();
+
+    console.error("Failed to add expense:", error);
     return res.status(500).json({
       message: "Failed to add expense",
       error: error.message,

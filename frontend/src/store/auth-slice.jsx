@@ -1,8 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { jwtDecode } from "jwt-decode";
 
 const initialAuthState = {
-  authToken: null,
-  isPremiumUser: false,
+  authToken: localStorage.getItem("token") || null,
+  isPremiumUser: localStorage.getItem("token")
+    ? jwtDecode(localStorage.getItem("token")).isPremium
+    : false,
   isLoggedIn: localStorage.getItem("isLoggedIn") ? true : false,
 };
 
@@ -18,7 +21,6 @@ const authSlice = createSlice({
     },
     setIsPremium: (state, action) => {
       state.isPremiumUser = action.payload;
-      localStorage.setItem("isPremium", action.payload);
     },
   },
 });

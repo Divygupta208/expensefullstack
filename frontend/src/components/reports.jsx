@@ -67,7 +67,7 @@ const Reports = () => {
                     <td className="p-4 border border-gray-300">{user.name}</td>
                     <td className="p-4 border border-gray-300">{user.email}</td>
                     <td className="p-4 border border-gray-300">
-                      ${user.totalExpenses.toFixed(2)}
+                      ${user.totalExpense.toFixed(2)}
                     </td>
                   </tr>
                 ))

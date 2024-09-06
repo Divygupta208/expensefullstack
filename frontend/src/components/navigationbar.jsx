@@ -11,10 +11,13 @@ import { jwtDecode } from "jwt-decode";
 
 const NavigationBar = () => {
   const navigate = useNavigate();
-  const isPremiumUser = JSON.parse(
-    localStorage.getItem("isPremium") || "false"
-  );
-  console.log(isPremiumUser);
+  const token = localStorage.getItem("token");
+  let isPremiumUser = useSelector((state) => state.auth.isPremiumUser);
+
+  // if (token) {
+  //   const decodedToken = jwtDecode(token);
+  //   isPremiumUser = decodedToken.isPremium;
+  // }
   const userLoggedIn =
     useSelector((state) => state.auth.isLoggedIn) ||
     localStorage.getItem("isLoggedIn");

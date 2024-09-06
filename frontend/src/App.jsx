@@ -10,7 +10,7 @@ import ReportsPage from "./pages/reportspage";
 function App() {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
-
+  const isPremiumUser = useSelector((state) => state.auth.isPremiumUser);
   useEffect(() => {
     if (token) {
       try {
@@ -39,7 +39,12 @@ function App() {
             element={token ? <UserHomePage /> : <Navigate to="/" />}
           ></Route>
 
-          <Route path="reports" element={<ReportsPage />} />
+          <Route
+            path="reports"
+            element={
+              isPremiumUser ? <ReportsPage /> : <Navigate to={"/Home"} />
+            }
+          />
         </Route>
       </Routes>
     </>

@@ -17,10 +17,11 @@ const expenseRoute = require("./routes/expense");
 const User = require("./models/user");
 const Expense = require("./models/expense");
 const Order = require("./models/order");
+const { checkPremium } = require("./middleware/checkpremium");
 app.use("/user", userRoute);
 app.use("/expense", authenticateUser, expenseRoute);
 app.use("/purchase", authenticateUser, purchaseRoute);
-app.use("/premium", premiumRoute);
+app.use("/premium", authenticateUser, checkPremium, premiumRoute);
 
 User.hasMany(Expense);
 Expense.belongsTo(User);
