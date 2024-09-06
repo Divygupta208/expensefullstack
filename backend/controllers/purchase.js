@@ -45,24 +45,41 @@ exports.updateTransactionStatus = async (req, res) => {
       return res.status(404).json({ error: "Order not found" });
     }
 
-    console.log(payment_id);
+    if (payment_id) {
+      order.paymentId = payment_id;
+      order.status = "SUCCESSFUL";
+      await order.save();
 
-    order.paymentId = payment_id;
-    order.status = "SUCCESSFUL";
-    await order.save();
+      const user = await User.findByPk(order.userId);
 
-    const user = await User.findByPk(order.userId);
+      if (user) {
+        user.isPremium = true;
+        await user.save();
+      }
 
-    if (user) {
-      user.isPremium = true;
-      await user.save();
+      const newToken = jwt.sign(
+        {
+          userId: user.id,
+          email: user.email,
+          isPremium: user.isPremium,
+        },
+        "b2a76f7c3e5f8d1a9c3b2e5d7f6a8c9b1e2d3f4a6b7c9e8d7f6b9c1a3e5d7f6b",
+        { expiresId: "1h" }
+      );
+
+      res.json({
+        success: true,
+        message: "Payment successful and order updated",
+        token: newToken,
+      });
+    } else {
+      order.status = "FAILED";
+      await order.save();
+
+      return res
+        .status(400)
+        .json({ success: false, message: "Payment failed, order updated" });
     }
-
-    res.json({
-      success: true,
-      message: "Payment successful and order updated",
-      isPremium: true,
-    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to update transaction status" });
