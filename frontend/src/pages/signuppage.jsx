@@ -1,12 +1,12 @@
-import React from "react";
-import Signup from "../components/signup";
+import { useLocation } from "react-router-dom";
+import Signup from "../components/Signup";
 
 const SignupPage = () => {
-  return (
-    <div>
-      <Signup />
-    </div>
-  );
+  const location = useLocation();
+  const query = new URLSearchParams(location.search);
+  const mode = query.get("mode") || "signup";
+
+  return <Signup mode={mode} />;
 };
 
 export default SignupPage;

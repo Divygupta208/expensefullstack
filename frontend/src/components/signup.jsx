@@ -1,20 +1,18 @@
 import React, { useRef, useState } from "react";
-import { jwtDecode } from "jwt-decode";
+import { jwtDecode } from "jwt-decode"; // Correct import for jwt-decode
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { authAction } from "../store/store";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { expenseAction } from "../store/expense-slice";
 
-const Signup = () => {
+const Signup = ({ mode }) => {
   const nameRef = useRef();
   const emailRef = useRef();
   const passwordRef = useRef();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
-  const [login, setLogin] = useState(false);
 
   const [errors, setErrors] = useState({
     name: "",
@@ -23,10 +21,6 @@ const Signup = () => {
     usererror: "",
   });
 
-  const loginHandler = () => {
-    setLogin(!login);
-  };
-
   const handleFormSubmit = async (e) => {
     e.preventDefault();
 
@@ -34,22 +28,18 @@ const Signup = () => {
 
     const email = emailRef.current.value.trim();
     const password = passwordRef.current.value.trim();
-    let name = null;
-
-    if (!login) {
-      name = nameRef.current.value.trim();
-    }
+    const name = mode === "signup" ? nameRef.current.value.trim() : null;
 
     let isValid = true;
     const newErrors = {};
 
-    if (!login && name === "") {
+    if (mode === "signup" && !name) {
       newErrors.name = "Name is required";
       isValid = false;
     }
 
     const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
-    if (email === "") {
+    if (!email) {
       newErrors.email = "Email is required";
       isValid = false;
     } else if (!emailPattern.test(email)) {
@@ -57,7 +47,7 @@ const Signup = () => {
       isValid = false;
     }
 
-    if (password === "") {
+    if (!password) {
       newErrors.password = "Password is required";
       isValid = false;
     } else if (password.length < 6) {
@@ -67,10 +57,12 @@ const Signup = () => {
 
     if (isValid) {
       try {
-        const url = login
-          ? "http://localhost:3000/user/login"
-          : "http://localhost:3000/user/signup";
-        const body = login ? { email, password } : { name, email, password };
+        const url =
+          mode === "signup"
+            ? "http://localhost:3000/user/signup"
+            : "http://localhost:3000/user/login";
+        const body =
+          mode === "signup" ? { name, email, password } : { email, password };
 
         const response = await fetch(url, {
           method: "POST",
@@ -83,16 +75,13 @@ const Signup = () => {
         const data = await response.json();
 
         if (response.ok) {
-          console.log(
-            login
-              ? toast.success("User logged in successfully:")
-              : toast.success(
-                  "Account Created Successfully , Please Log in To Continue:"
-                ),
-            data
+          toast.success(
+            mode === "signup"
+              ? "Account created successfully. Please log in to continue."
+              : "User logged in successfully."
           );
 
-          if (login) {
+          if (mode === "login") {
             const decodedToken = jwtDecode(data.token);
             const isPremium = decodedToken.isPremium;
             dispatch(authAction.setToken(data.token));
@@ -104,7 +93,7 @@ const Signup = () => {
           if (response.status === 404) {
             newErrors.usererror = "User not found";
           } else if (response.status === 401) {
-            newErrors.usererror = "Incorrect password or Email !";
+            newErrors.usererror = "Incorrect password or email";
           } else if (response.status === 409) {
             newErrors.usererror = "User already exists with this email";
           } else {
@@ -128,7 +117,7 @@ const Signup = () => {
     <div className="flex flex-col md:flex-row">
       <div className="md:w-1/2 grid grid-cols-2 gap-4 p-4">
         <div className="h-96 md:h-56 w-96">
-          <img src="/cash-svgrepo-com.svg" alt="Image 1" className=" " />
+          <img src="/cash-svgrepo-com.svg" alt="Image 1" className="" />
         </div>
         <div className="h-64 md:h-56 w-64 -mx-10">
           <img src="/credit-card-svgrepo-com.svg" alt="Image 2" className="" />
@@ -151,7 +140,7 @@ const Signup = () => {
             onSubmit={handleFormSubmit}
             className="bg-white p-4 md:p-8 rounded-lg shadow-[10px_5px_60px_10px_rgba(0,0,0,0.3)] w-full"
           >
-            {!login && (
+            {mode === "signup" && (
               <div className="mb-4">
                 <label
                   htmlFor="name"
@@ -220,43 +209,33 @@ const Signup = () => {
               )}
             </div>
 
-            {!login ? (
-              <button
-                type="submit"
-                className="bg-[#000000] text-white font-bold py-2 px-4 rounded hover:bg-cyan-800 w-36 mx-44"
-              >
-                Sign Up
-              </button>
-            ) : (
-              <button
-                type="submit"
-                className="bg-[#000000] text-white font-bold py-2 px-4 rounded hover:bg-cyan-800 w-36 mx-44"
-              >
-                Log In
-              </button>
-            )}
+            <button
+              type="submit"
+              className="bg-[#000000] text-white font-bold py-2 px-4 rounded hover:bg-cyan-800 w-36 mx-44"
+            >
+              {mode === "signup" ? "Sign Up" : "Log In"}
+            </button>
 
-            {!login ? (
-              <div className="flex justify-center gap-2 mt-5">
-                <p className=" text-green-600">Already Have An Account?</p>
-                <div
-                  onClick={loginHandler}
-                  className=" font-bold cursor-pointer"
-                >
-                  Log In
-                </div>
+            <div className="flex justify-center gap-2 mt-5">
+              <p className="text-green-600">
+                {mode === "signup"
+                  ? "Already have an account?"
+                  : "Don't have an account?"}
+              </p>
+              <div
+                onClick={() =>
+                  navigate(
+                    `/auth?mode=${mode === "signup" ? "login" : "signup"}`
+                  )
+                }
+                className="font-bold cursor-pointer"
+              >
+                {mode === "signup" ? "Log In" : "Sign Up"}
               </div>
-            ) : (
-              <div className="flex justify-center gap-2 mt-5">
-                <p className=" text-green-600">Create An Account?</p>
-                <div
-                  onClick={loginHandler}
-                  className=" font-bold cursor-pointer"
-                >
-                  Sign Up
-                </div>
-              </div>
-            )}
+            </div>
+            <button className="text-blue-400 text-sm font-light">
+              <Link to={"/action?forgot=password"}>forgot-password?</Link>
+            </button>
           </form>
         </div>
       </div>
