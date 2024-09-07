@@ -66,13 +66,19 @@ exports.getExpenses = async (req, res) => {
 exports.deleteExpense = async (req, res) => {
   const { id } = req.params;
   const userId = req.user.id;
+  const t = await sequelize.transaction();
 
   try {
-    const result = await Expense.destroy({ where: { id, userId } });
+    const result = await Expense.destroy(
+      { where: { id, userId } },
+      { transaction: t }
+    );
 
     if (result === 1) {
+      await t.commit();
       res.status(200).json({ message: "Expense deleted successfully" });
     } else {
+      await t.rollback();
       res.status(404).json({ message: "Expense not found or not authorized" });
     }
   } catch (error) {
