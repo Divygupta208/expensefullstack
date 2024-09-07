@@ -108,8 +108,10 @@ exports.postForgotPassword = async (req, res, next) => {
   const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
   sendSmtpEmail.subject = "Password Reset Request";
   sendSmtpEmail.templateId = 1;
-  sendSmtpEmail.htmlContent = `<p>Click the following link to reset your password:</p>
-    <a href="http://localhost:3000/reset-password?email=${email}">Reset Password</a>`;
+  sendSmtpEmail.params = {
+    link: `http://localhost:3000/reset-password?email=${email}`,
+  };
+
   sendSmtpEmail.sender = { name: "Your App", email: "divygupta208@gmail.com" };
   sendSmtpEmail.to = [{ email: email }];
 
