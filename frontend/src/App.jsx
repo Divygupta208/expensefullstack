@@ -7,6 +7,7 @@ import { jwtDecode } from "jwt-decode";
 import { useSelector } from "react-redux";
 import ReportsPage from "./pages/reportspage";
 import ForgotPasswordPage from "./pages/forgotpasswordpage";
+import ResetPassword from "./components/resetpassword";
 
 function App() {
   const navigate = useNavigate();
@@ -48,6 +49,7 @@ function App() {
           />
         </Route>
         <Route path="/action" element={<ForgotPasswordPage />} />
+        <Route path="/resetpassword/:id" element={<ResetPassword />} />
       </Routes>
     </>
   );

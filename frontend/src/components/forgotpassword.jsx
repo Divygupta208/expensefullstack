@@ -1,6 +1,7 @@
 import React, { useRef } from "react";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const ForgotPassword = () => {
   const emailRef = useRef();
@@ -21,13 +22,14 @@ const ForgotPassword = () => {
 
       if (response.ok) {
         const data = await response.json();
-
-        console.log("Email sent:", data);
+        toast(data.message);
       } else {
         const errorData = await response.json();
+        toast.error(errorData.message);
         console.log("Error:", errorData.message || response.statusText);
       }
     } catch (err) {
+      toast.error(err);
       console.error("An error occurred:", err);
     }
   };
