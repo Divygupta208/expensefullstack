@@ -4,6 +4,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const sequelize = require("../util/database");
 const SibApiV3Sdk = require("sib-api-v3-sdk");
+const ForgotPasswordRequest = require("../models/forgot-password-request");
 
 const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
 const apiKey = SibApiV3Sdk.ApiClient.instance.authentications["api-key"];
@@ -100,16 +101,45 @@ exports.postLoginUser = async (req, res, next) => {
 
 exports.postForgotPassword = async (req, res, next) => {
   const { email } = req.body;
+  const t = await sequelize.transaction();
 
   if (!email) {
     return res.status(400).json({ message: "Email is required" });
   }
 
+  const user = await User.findOne(
+    { where: { email: email } },
+    { transaction: t }
+  );
+
+  if (!user) {
+    await t.rollback();
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  const forgotpasswordrequest = await ForgotPasswordRequest.create(
+    {
+      isActive: true,
+      userId: user.id,
+      expiresAt: new Date(Date.now() + 60 * 60 * 1000),
+    },
+    { transaction: t }
+  );
+
+  if (!forgotpasswordrequest) {
+    await t.rollback();
+    return res
+      .status(500)
+      .json({ message: "Error creating forgot password request" });
+  }
+
+  await t.commit();
+
   const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
-  sendSmtpEmail.subject = "Password Reset Request";
+  sendSmtpEmail.subject = "Reset Password Request";
   sendSmtpEmail.templateId = 1;
   sendSmtpEmail.params = {
-    link: `http://localhost:3000/reset-password?email=${email}`,
+    link: `http://localhost:5173/resetpassword/${forgotpasswordrequest.id}`,
   };
 
   sendSmtpEmail.sender = { name: "Your App", email: "divygupta208@gmail.com" };
@@ -124,5 +154,49 @@ exports.postForgotPassword = async (req, res, next) => {
   } catch (error) {
     console.error("Error while sending email:", error);
     return res.status(500).json({ error: "Error sending the email" });
+  }
+};
+
+exports.postResetPassword = async (req, res, next) => {
+  const { newPassword } = req.body;
+  const { id } = req.params;
+
+  try {
+    const resetRequest = await ForgotPasswordRequest.findOne({
+      where: { id: id },
+    });
+
+    if (!resetRequest) {
+      return res.status(404).json({ message: "Invalid reset token" });
+    }
+
+    if (!resetRequest.isActive) {
+      return res
+        .status(400)
+        .json({ message: "Reset token has already been used" });
+    }
+
+    const currentTime = new Date();
+    if (currentTime > resetRequest.expiresAt) {
+      return res.status(400).json({ message: "Reset token has expired" });
+    }
+
+    const user = await User.findOne({ where: { id: resetRequest.userId } });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    user.password = hashedPassword;
+    await user.save();
+
+    resetRequest.isActive = false;
+    await resetRequest.save();
+
+    return res.status(200).json({ message: "Password updated successfully" });
+  } catch (error) {
+    console.error("Error updating password:", error);
+    return res.status(500).json({ message: "Server error" });
   }
 };
