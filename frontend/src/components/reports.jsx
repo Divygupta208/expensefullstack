@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { motion } from "framer-motion";
 import { AnimatePresence } from "framer-motion";
-const Reports = () => {
+const LeaderBoard = () => {
   const [leaderboard, setLeaderboard] = useState([]);
 
   const fetchLeaderboard = async () => {
@@ -86,4 +86,4 @@ const Reports = () => {
   );
 };
 
-export default Reports;
+export default LeaderBoard;

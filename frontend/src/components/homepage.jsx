@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { Link, Outlet } from "react-router-dom";
 import ExpenseList from "./expense-list";
 import { IoIosAddCircleOutline } from "react-icons/io";
@@ -7,31 +7,40 @@ import { motion } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 import { utilAction } from "../store/store";
 import AddExpense from "./add-expense";
+import LocomotiveScroll from "locomotive-scroll";
+import { expenseAction } from "../store/expense-slice";
+import "locomotive-scroll/dist/locomotive-scroll.css"; // Locomotive Scroll CSS
 
 const Homepage = () => {
+  const scrollRef = useRef(null);
   const dispatch = useDispatch();
+  const userIsPremium = useSelector((state) => state.auth.isPremiumUser);
+  useEffect(() => {
+    dispatch(expenseAction.fetchExpenses());
+  }, [dispatch]);
+
+  const expenses = useSelector((state) => state.expense.items);
+
   const openAddForm = useSelector((state) => state.util.openAddForm);
-  const showAddForm = () => {
+  const showAddForm = (e) => {
+    e.preventDefault();
     dispatch(utilAction.setOpenAddForm(!openAddForm));
   };
+  useEffect(() => {
+    dispatch(expenseAction.fetchExpenses());
+  }, [dispatch]);
 
   return (
-    <div className="bg-white relative">
-      <div className="flex flex-col md:flex-row">
-        <ExpenseList />
-        <Charts />
+    <div ref={scrollRef} className="bg-white top-20 relative ">
+      <div className="flex">
+        <div className="w-1/2">
+          <ExpenseList overallexpenses={expenses} showAddForm={showAddForm} />
+        </div>
+        <div className="w-1/2">
+          <Charts overallexpenses={expenses} filter="weekly" />
+        </div>
       </div>
       <Outlet />
-      <motion.div
-        onClick={showAddForm}
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9, y: -5 }}
-        className=" w-16 h-16 bg-blue-500 hover:bg-blue-600 text-white rounded-full flex items-center justify-center shadow-lg cursor-pointer absolute bottom-7 left-4 z-50"
-      >
-        <Link to={""}>
-          <IoIosAddCircleOutline className="w-10 h-10" />
-        </Link>
-      </motion.div>
       <AddExpense />
     </div>
   );

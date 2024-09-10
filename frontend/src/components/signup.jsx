@@ -72,19 +72,24 @@ const Signup = ({ mode }) => {
           body: JSON.stringify(body),
         });
 
-        const data = await response.json();
-
         if (response.ok) {
           toast.success(
             mode === "signup"
               ? "Account created successfully. Please log in to continue."
               : "User logged in successfully."
           );
+          const data = await response.json();
+
+          const userData = {
+            name: data.username,
+            email: data.usermail,
+          };
 
           if (mode === "login") {
             const decodedToken = jwtDecode(data.token);
             const isPremium = decodedToken.isPremium;
             dispatch(authAction.setToken(data.token));
+            dispatch(authAction.setUserData(userData));
             dispatch(authAction.setIsPremium(isPremium));
             dispatch(expenseAction.resetExpenses());
             navigate("/Home");
@@ -114,7 +119,7 @@ const Signup = ({ mode }) => {
   };
 
   return (
-    <div className="flex flex-col md:flex-row">
+    <div className="flex flex-col md:flex-row mt-40 z-50">
       <div className="md:w-1/2 grid grid-cols-2 gap-4 p-4">
         <div className="h-96 md:h-56 w-96">
           <img src="/cash-svgrepo-com.svg" alt="Image 1" className="" />
@@ -138,7 +143,7 @@ const Signup = ({ mode }) => {
         <div className="w-full md:w-3/4 flex items-center justify-center">
           <form
             onSubmit={handleFormSubmit}
-            className="bg-white p-4 md:p-8 rounded-lg shadow-[10px_5px_60px_10px_rgba(0,0,0,0.3)] w-full"
+            className="p-4 bg-white md:p-8 rounded-lg shadow-[10px_5px_60px_10px_rgba(0,0,0,0.3)] w-full"
           >
             {mode === "signup" && (
               <div className="mb-4">
@@ -233,7 +238,7 @@ const Signup = ({ mode }) => {
                 {mode === "signup" ? "Log In" : "Sign Up"}
               </div>
             </div>
-            <button className="text-blue-400 text-sm font-light">
+            <button className="text-blue-400 text-sm font-semibold">
               <Link to={"/action?forgot=password"}>forgot-password?</Link>
             </button>
           </form>

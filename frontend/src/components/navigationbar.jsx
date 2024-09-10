@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { FaUserCircle } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
@@ -8,35 +8,110 @@ import "react-toastify/dist/ReactToastify.css";
 import { IoDiamond } from "react-icons/io5";
 import { authAction } from "../store/store";
 import { jwtDecode } from "jwt-decode";
+import ReportsDropdown from "./reports-dropdown";
+import ProfileView from "./viewprofile";
+import HomeNav from "./expensesnav";
 
 const NavigationBar = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
   let isPremiumUser = useSelector((state) => state.auth.isPremiumUser);
-
+  const [activeLink, setActiveLink] = useState(null);
   // if (token) {
   //   const decodedToken = jwtDecode(token);
   //   isPremiumUser = decodedToken.isPremium;
   // }
-  const userLoggedIn =
-    useSelector((state) => state.auth.isLoggedIn) ||
-    localStorage.getItem("isLoggedIn");
+  const userLoggedIn = useSelector((state) => state.auth.isLoggedIn);
+
   const [openHomeNav, setHomeNav] = useState(false);
   const [openProfileView, setProfileView] = useState(false);
+  const [openReportsDropdown, setReportsDropdown] = useState(false);
 
   const dispatch = useDispatch();
-  const toggleHomeNavBar = () => {
-    setHomeNav(!openHomeNav);
+
+  const homeNavRef = useRef(null);
+  const profileViewRef = useRef(null);
+  const reportsDropdownRef = useRef(null);
+
+  const toggleHomeNavBar = (e) => {
+    e.preventDefault();
+    if (!userLoggedIn) {
+      toast.info("Please Log In😒");
+    } else {
+      setActiveLink("homenav");
+      setHomeNav(!openHomeNav);
+    }
   };
-  const toggleProfileView = () => {
-    setProfileView(!openProfileView);
+  const toggleProfileView = (e) => {
+    e.preventDefault();
+    if (!userLoggedIn) {
+      toast.info("Please Log In 😒");
+    } else {
+      setActiveLink("profile");
+      setProfileView(!openProfileView);
+    }
+  };
+  const toggleReportsDropdown = (e) => {
+    if (!userLoggedIn) {
+      toast.info("Please Log In 😒");
+    } else {
+      setActiveLink("reports");
+      setReportsDropdown(!openReportsDropdown);
+    }
   };
 
-  const userProfile = {
-    image: "https://via.placeholder.com/100", // Replace with actual image source
-    name: "John Doe", // Replace with actual user name
-    email: "john.doe@example.com", // Replace with actual user email
-    contact: "+1234567890", // Replace with actual user contact
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (homeNavRef.current && !homeNavRef.current.contains(event.target)) {
+        setTimeout(() => {
+          setActiveLink(null);
+          setHomeNav(false);
+        }, 100);
+      }
+
+      if (
+        profileViewRef.current &&
+        !profileViewRef.current.contains(event.target)
+      ) {
+        setTimeout(() => {
+          setActiveLink(null);
+          setProfileView(false);
+        }, 100);
+      }
+
+      if (
+        reportsDropdownRef.current &&
+        !reportsDropdownRef.current.contains(event.target)
+      ) {
+        setTimeout(() => {
+          setActiveLink(null);
+          setReportsDropdown(false);
+        }, 100);
+      }
+    };
+
+    document.addEventListener("pointerdown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("pointerdown", handleClickOutside);
+    };
+  }, []);
+
+  const handleLinkClick = (e) => {
+    e.preventDefault();
+    if (!userLoggedIn) {
+      toast.warning("Please Log In");
+      navigate("/auth?mode=login");
+    } else {
+      setActiveLink("Home");
+      navigate("/Home");
+    }
+  };
+
+  const handleUserLogOut = (e) => {
+    e.preventDefault();
+    dispatch(authAction.logout());
+    navigate("/auth?mode=login");
   };
 
   const handleRazorPayButtonClick = async (e) => {
@@ -52,6 +127,8 @@ const NavigationBar = () => {
       }
     );
     const data = await response.json();
+
+    console.log(data);
 
     const options = {
       key: data.key_id,
@@ -80,6 +157,8 @@ const NavigationBar = () => {
           const decodedToken = jwtDecode(result.token);
           const isPremium = decodedToken.isPremium;
           dispatch(authAction.setIsPremium(isPremium));
+        } else {
+          toast.error("Please Try Again 🫤");
         }
       },
     };
@@ -108,7 +187,7 @@ const NavigationBar = () => {
 
   return (
     <>
-      <nav className="bg-[#060606] text-white p-4 shadow-lg">
+      <nav className=" fixed w-full top-0 bg-white text-black p-4 shadow-xl font-semibold z-50">
         <div className="container mx-auto flex justify-between items-center">
           <div className="text-lg font-bold flex items-center">
             <img
@@ -120,78 +199,97 @@ const NavigationBar = () => {
           </div>
 
           <div className="space-x-4 flex items-center gap-5">
-            <Link
-              to={userLoggedIn ? "/Home" : "#"}
-              onClick={(e) => {
-                if (!userLoggedIn) {
-                  e.preventDefault();
-                  toast.warning("Please Log In");
-                }
-              }}
-              className="hover:underline"
+            <NavLink
+              to={userLoggedIn ? "/Home" : ""}
+              onClick={handleLinkClick}
+              className={({ isActive }) =>
+                isActive
+                  ? "bg-orange-500 p-2 rounded-xl"
+                  : "bg-white hover:bg-orange-400 p-2 rounded-xl"
+              }
             >
               Home
-            </Link>
-            <Link to="#" onClick={toggleHomeNavBar} className="hover:underline">
+            </NavLink>
+
+            <NavLink
+              onClick={toggleHomeNavBar}
+              className={
+                activeLink === "homenav"
+                  ? "bg-orange-500 p-2 rounded-xl"
+                  : "hover:bg-orange-400 bg-white p-2 rounded-xl"
+              }
+            >
               Expenses
-            </Link>
-            <Link
-              to={isPremiumUser ? "/reports" : "#"}
-              onClick={(e) => {
-                if (!isPremiumUser) {
-                  e.preventDefault();
-                  toast.warning("Please Subscribe to Check Premium Features");
-                }
-              }}
-              className="hover:underline"
+            </NavLink>
+
+            <NavLink
+              to="#"
+              onClick={toggleReportsDropdown}
+              className={
+                activeLink === "reports"
+                  ? "bg-orange-500 p-2 rounded-xl"
+                  : "hover:bg-orange-400 p-2 rounded-xl"
+              }
             >
               Reports
-            </Link>
-            <Link to="#" className="hover:underline">
+            </NavLink>
+
+            <NavLink
+              to="#"
+              className={
+                activeLink === "settings"
+                  ? "bg-orange-500 p-2 rounded-xl"
+                  : "hover:bg-orange-400 p-2 rounded-xl"
+              }
+            >
               Settings
-            </Link>
-            <Link
+            </NavLink>
+
+            <NavLink
               to="#"
               onClick={toggleProfileView}
-              className="hover:underline"
+              className={
+                activeLink === "profile"
+                  ? "bg-indigo-500 p-2 rounded-xl"
+                  : "hover:bg-indigo-400 p-2 rounded-xl"
+              }
             >
               <FaUserCircle className="w-5 h-5" />
-            </Link>
+            </NavLink>
           </div>
         </div>
       </nav>
 
       <AnimatePresence>
-        {openProfileView && (
+        {openReportsDropdown && (
           <motion.div
+            ref={reportsDropdownRef}
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.3 }}
-            className="absolute top-16 right-4 w-64 bg-[#e6e6e6] text-black p-4 shadow-lg rounded-lg z-50"
+            className="absolute top-16 right-40 w-48 bg-[#ffffff] text-black p-4 shadow-lg rounded-lg z-50"
           >
-            <div className="flex flex-col items-center">
-              <img
-                src={userProfile.image}
-                alt="User Profile"
-                className="w-20 h-20 rounded-full mb-4"
-              />
-              <h3 className="text-lg font-semibold">{userProfile.name}</h3>
-              <p className="text-sm text-gray-600">{userProfile.email}</p>
-              <p className="text-sm text-gray-600">{userProfile.contact}</p>
-              {!isPremiumUser ? (
-                <button
-                  onClick={handleRazorPayButtonClick}
-                  className="mt-4 px-6 py-2 gap-1 bg-[#ff662a] text-white font-semibold rounded-md flex"
-                >
-                  Buy <IoDiamond className="mt-1.5" />
-                </button>
-              ) : (
-                <p>
-                  <IoDiamond />
-                </p>
-              )}
-            </div>
+            <ReportsDropdown isPremiumUser={isPremiumUser} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {openProfileView && (
+          <motion.div
+            ref={profileViewRef}
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3 }}
+            className="absolute top-16 w-64 right-4 bg-[#ffffff] text-black p-4 shadow-lg rounded-lg z-50"
+          >
+            <ProfileView
+              isPremiumUser={isPremiumUser}
+              handleRazorPayButtonClick={handleRazorPayButtonClick}
+              handleUserLogOut={handleUserLogOut}
+            />
           </motion.div>
         )}
       </AnimatePresence>
@@ -199,57 +297,14 @@ const NavigationBar = () => {
       <AnimatePresence>
         {openHomeNav && (
           <motion.div
-            initial={{ opacity: 1, y: -10 }}
-            animate={{ opacity: 1, y: 5 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.3 }}
-            className="fixed top-16 left-0 right-0 bg-gray-200 p-4 text-white z-50"
+            ref={homeNavRef}
+            initial={{ opacity: 0, y: 0 }}
+            animate={{ opacity: 1, y: 10 }}
+            exit={{ opacity: 0, y: 0 }}
+            transition={{ duration: 0.2 }}
+            className="absolute top-14 left-0 right-0 bg-gray-100 p-4 text-black z-50 shadow-lg"
           >
-            <div className="container mx-auto flex justify-between items-center">
-              <div className="flex space-x-4">
-                <NavLink
-                  to="#"
-                  className={({ isActive }) =>
-                    isActive
-                      ? "bg-teal-500 px-3 py-2 rounded-md text-sm font-medium"
-                      : "px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-500"
-                  }
-                >
-                  Daily Expenses
-                </NavLink>
-                <NavLink
-                  to="#"
-                  className={({ isActive }) =>
-                    isActive
-                      ? "bg-teal-500 px-3 py-2 rounded-md text-sm font-medium"
-                      : "px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-500"
-                  }
-                >
-                  Monthly Expenses
-                </NavLink>
-                <NavLink
-                  to="/Home"
-                  className={({ isActive }) =>
-                    isActive
-                      ? "bg-teal-500 px-3 py-2 rounded-md text-sm font-medium"
-                      : "px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-500"
-                  }
-                >
-                  Yearly Expenses
-                </NavLink>
-              </div>
-
-              <div className="flex items-center">
-                <input
-                  type="text"
-                  placeholder="Search expenses"
-                  className="px-4 py-2 rounded-md text-gray-900"
-                />
-                <button className="ml-2 px-3 py-2 bg-teal-500 rounded-md text-sm font-medium">
-                  Search
-                </button>
-              </div>
-            </div>
+            <HomeNav />
           </motion.div>
         )}
       </AnimatePresence>
