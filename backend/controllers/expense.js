@@ -2,7 +2,7 @@ const Expense = require("../models/expense");
 const sequelize = require("../util/database");
 
 exports.postAddExpense = async (req, res, next) => {
-  const { price, description, category } = req.body;
+  const { price, description, category, division } = req.body;
 
   const t = await sequelize.transaction();
 
@@ -14,6 +14,7 @@ exports.postAddExpense = async (req, res, next) => {
         price,
         description,
         category,
+        division,
       },
       { transaction: t }
     );
@@ -27,7 +28,6 @@ exports.postAddExpense = async (req, res, next) => {
       message: "Expense added successfully",
       expense: {
         ...expense.toJSON(),
-        createdAt: expense.createdAt.toISOString().split("T")[0],
       },
     });
   } catch (error) {
@@ -41,18 +41,29 @@ exports.postAddExpense = async (req, res, next) => {
   }
 };
 
+const formatDateToLocalYYYYMMDD = (dateString) => {
+  const date = new Date(dateString);
+
+  // Get the local date parts
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-indexed
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+};
+
 exports.getExpenses = async (req, res) => {
   const userId = req.user.id;
 
   try {
     const expenses = await Expense.findAll({
-      where: { userId },
+      where: { userId: userId },
     });
 
     const formattedExpenses = expenses.map((expense) => {
       return {
         ...expense.toJSON(),
-        createdAt: expense.createdAt.toISOString().split("T")[0],
+        createdAt: formatDateToLocalYYYYMMDD(expense.createdAt),
       };
     });
 

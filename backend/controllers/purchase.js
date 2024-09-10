@@ -1,9 +1,12 @@
 const Order = require("../models/order");
 const User = require("../models/user");
 const Razorpay = require("razorpay");
+const sequelize = require("../util/database");
+const jwt = require("jsonwebtoken");
 
 exports.purchasePremiumMembership = async (req, res) => {
   const t = await sequelize.transaction();
+  let createdOrderId = null;
 
   try {
     const razorpayInstance = new Razorpay({
@@ -20,7 +23,9 @@ exports.purchasePremiumMembership = async (req, res) => {
       receipt: `receipt_order_${user.id}`,
     });
 
-    const newOrder = await Order.create(
+    createdOrderId = order.id;
+
+    await Order.create(
       {
         userId: user.id,
         orderId: order.id,
@@ -33,12 +38,22 @@ exports.purchasePremiumMembership = async (req, res) => {
 
     res.json({
       order,
-      key_id: process.env.RAZORPAY_KEY_ID,
     });
   } catch (err) {
     await t.rollback();
 
-    console.error(err);
+    if (createdOrderId) {
+      try {
+        await Order.update(
+          { status: "FAILED" },
+          { where: { orderId: createdOrderId }, transaction: t }
+        );
+      } catch (updateError) {
+        console.error("Failed to update order status:", updateError);
+      }
+    }
+
+    console.error("Failed to create Razorpay order:", err);
     res.status(500).json({ error: "Failed to create Razorpay order" });
   }
 };
@@ -100,7 +115,25 @@ exports.updateTransactionStatus = async (req, res) => {
     }
   } catch (err) {
     await t.rollback();
-    console.error(err);
+
+    if (payment_id) {
+      try {
+        const orderToRefund = await Order.findOne({
+          where: { orderId: order_id },
+        });
+        if (orderToRefund) {
+          orderToRefund.status = "REFUNDED";
+          await orderToRefund.save({ transaction: t });
+        }
+      } catch (refundError) {
+        console.error(
+          "Failed to update order status to REFUNDED:",
+          refundError
+        );
+      }
+    }
+
+    console.error("Error updating transaction status:", err);
     return res
       .status(500)
       .json({ error: "Failed to update transaction status" });

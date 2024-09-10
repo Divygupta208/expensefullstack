@@ -89,7 +89,12 @@ exports.postLoginUser = async (req, res, next) => {
       { expiresIn: "1h" }
     );
     await t.commit();
-    return res.status(200).json({ token, userId: user.id });
+    return res.status(200).json({
+      token,
+      userId: user.id,
+      username: user.name,
+      usermail: user.email,
+    });
   } catch (error) {
     await t.rollback();
     console.error("Error during user login:", error);
