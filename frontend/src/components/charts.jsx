@@ -1,17 +1,35 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import {
   PieChart,
   Pie,
   Cell,
   Tooltip,
-  BarChart,
-  Bar,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   CartesianGrid,
   ResponsiveContainer,
 } from "recharts";
+import { FaInfoCircle } from "react-icons/fa";
+import LocomotiveScroll from "locomotive-scroll";
+import "locomotive-scroll/dist/locomotive-scroll.css";
+// Helper function to calculate the start date of the selected week
+const getWeekStartDate = (weeksAgo) => {
+  const now = new Date();
+  const todayDayOfWeek = now.getDay();
+  const diff = todayDayOfWeek === 0 ? 6 : todayDayOfWeek - 1; // Adjust if today is Sunday
+  const startOfCurrentWeek = new Date(now.setDate(now.getDate() - diff));
+  startOfCurrentWeek.setHours(0, 0, 0, 0); // Set to the start of the day
+
+  // Adjust for previous weeks based on weeksAgo (e.g., -1 for last week)
+  startOfCurrentWeek.setDate(
+    startOfCurrentWeek.getDate() - 7 * Math.abs(weeksAgo)
+  );
+
+  return startOfCurrentWeek;
+};
 
 const processCategoryData = (expenses) => {
   const categories = expenses.reduce((acc, expense) => {
@@ -57,17 +75,85 @@ const processMonthlyData = (expenses) => {
   }));
 };
 
+const processWeeklyData = (expenses, selectedWeekStart) => {
+  console.log("expenses", expenses);
+
+  const orderedDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+  // Create the weekDaysWithDates array with zeroed expenses
+  const weekDaysWithDates = orderedDays.map((day, index) => {
+    const currentDate = new Date(selectedWeekStart);
+    currentDate.setDate(selectedWeekStart.getDate() + index);
+    return {
+      name: `${day} (${currentDate.getDate()})`,
+      date: currentDate,
+      expenses: 0,
+    };
+  });
+
+  // Accumulate expenses for each day
+  expenses.forEach((expense) => {
+    const expenseDate = new Date(expense.createdAt);
+    expenseDate.setHours(0, 0, 0, 0); // Strip time for accurate comparison
+
+    // Find the corresponding day in the week and add the expense
+    weekDaysWithDates.forEach((dayData) => {
+      const dayDate = new Date(dayData.date);
+      dayDate.setHours(0, 0, 0, 0); // Strip time for accurate comparison
+
+      if (
+        expenseDate.getFullYear() === dayDate.getFullYear() &&
+        expenseDate.getMonth() === dayDate.getMonth() &&
+        expenseDate.getDate() === dayDate.getDate()
+      ) {
+        dayData.expenses += parseFloat(expense.price);
+      }
+    });
+  });
+
+  console.log("Week Days Data:", weekDaysWithDates);
+  return weekDaysWithDates;
+};
+
+const processYearlyData = (expenses) => {
+  const yearlyExpenses = {};
+
+  expenses.forEach((expense) => {
+    const year = new Date(expense.createdAt).getFullYear();
+    if (!yearlyExpenses[year]) yearlyExpenses[year] = 0;
+    yearlyExpenses[year] += parseFloat(expense.price);
+  });
+
+  return Object.keys(yearlyExpenses).map((year) => ({
+    name: year,
+    expenses: yearlyExpenses[year],
+  }));
+};
+
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
-const Charts = () => {
-  const expenses = useSelector((state) => state.expense.items);
+const Charts = ({ overallexpenses, filter }) => {
+  const [selectedWeek, setSelectedWeek] = useState(0);
+  const isPremiumUser = useSelector((state) => state.auth.isPremiumUser);
 
-  const categoryData = processCategoryData(expenses);
-  const monthlyData = processMonthlyData(expenses);
+  const handleWeekChange = (e) => {
+    setSelectedWeek(Number(e.target.value));
+  };
 
+  const categoryData = processCategoryData(overallexpenses);
+
+  let chartData;
+  if (filter === "weekly") {
+    const selectedWeekStart = getWeekStartDate(selectedWeek);
+    chartData = processWeeklyData(overallexpenses, selectedWeekStart);
+  } else if (filter === "monthly") {
+    chartData = processMonthlyData(overallexpenses);
+  } else if (filter === "yearly") {
+    chartData = processYearlyData(overallexpenses);
+  }
   return (
-    <div className="w-full md:w-1/2 lg:w-[40vw] p-0 max-h-[80vh] ml-10">
-      <div className="bg-white p-6 rounded-lg shadow-2xl mb-2">
+    <div>
+      <div className=" bg-white p-4 rounded-lg shadow-2xl w-[40vw] h-[80vh]">
         <h2 className="text-xl font-bold mb-4 text-gray-900">
           Expenses by Category
         </h2>
@@ -92,19 +178,43 @@ const Charts = () => {
         </ResponsiveContainer>
 
         <h2 className="text-xl font-bold mb-4 text-gray-800">
-          Monthly Expenses
+          Expenses Though Days
         </h2>
-        <ResponsiveContainer width="100%" height={250}>
-          <BarChart
-            data={monthlyData}
+        <div className="flex">
+          {!isPremiumUser && (
+            <div class="relative group bottom-0 z-100">
+              <span class="text-md text-red-500 rounded-full p-0 cursor-pointer">
+                <FaInfoCircle className="" />
+              </span>
+              <div class="absolute transform -translate-x-48 -translate-y-7 mt-5 w-48 p-2 bg-red-600 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                This is a premium feature!, Subscribe to set week.
+              </div>
+            </div>
+          )}
+          <select
+            className="mb-4 p-2 border border-gray-300 rounded-xl"
+            value={selectedWeek}
+            onChange={handleWeekChange}
+            disabled={!isPremiumUser}
+          >
+            <option value={0}>Current Week</option>
+            <option value={1}>Last Week</option>
+            <option value={2}>2 Weeks Ago</option>
+            <option value={3}>3 Weeks Ago</option>
+          </select>
+        </div>
+
+        <ResponsiveContainer width="100%" height={220}>
+          <LineChart
+            data={chartData}
             margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
           >
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="name" />
             <YAxis />
             <Tooltip />
-            <Bar dataKey="expenses" fill="#8884d8" />
-          </BarChart>
+            <Line type="monotone" dataKey="expenses" stroke="#8884d8" />
+          </LineChart>
         </ResponsiveContainer>
       </div>
     </div>

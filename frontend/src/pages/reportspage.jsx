@@ -1,8 +1,20 @@
 import React from "react";
-import Reports from "../components/reports";
+
+import { useLocation } from "react-router-dom";
+import LeaderBoard from "../components/reports";
+import UserReports from "../components/user-reports";
 
 const ReportsPage = () => {
-  return <Reports />;
+  const location = useLocation();
+  const query = new URLSearchParams(location.search);
+  const feature = query.get("feature");
+  if (feature === "leaderboard") {
+    return <LeaderBoard />;
+  } else if (feature === "reports") {
+    return <UserReports />;
+  } else {
+    return <div className="text-6xl text-center">OOPS! Page not found :( </div>;
+  }
 };
 
 export default ReportsPage;
