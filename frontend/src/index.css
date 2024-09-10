@@ -1,3 +1,20 @@
+/* Import locomotive-scroll styles */
+@import "locomotive-scroll/dist/locomotive-scroll.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Add custom styles specific to locomotive scroll */
+html,
+body {
+  overflow: hidden;
+}
+
+[data-scroll-container] {
+  overflow: hidden;
+}
+
+[data-scroll] {
+  will-change: transform;
+}

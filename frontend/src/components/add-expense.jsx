@@ -1,12 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { motion } from "framer-motion";
+import { easeInOut, motion } from "framer-motion";
 import { expenseAction } from "../store/expense-slice";
 
 const AddExpense = () => {
   const priceRef = useRef();
   const descriptionRef = useRef();
   const categoryRef = useRef();
+  const divisionRef = useRef();
   const openAddForm = useSelector((state) => state.util.openAddForm);
   const dispatch = useDispatch();
   const token =
@@ -20,6 +21,7 @@ const AddExpense = () => {
       price: parseFloat(priceRef.current.value),
       description: descriptionRef.current.value,
       category: categoryRef.current.value,
+      division: divisionRef.current.value,
     };
 
     try {
@@ -48,10 +50,10 @@ const AddExpense = () => {
       {openAddForm && (
         <motion.div
           initial={{ x: -100, y: 100, scale: 0, opacity: 0 }}
-          animate={{ opacity: 1, y: -20, x: 200, scale: 1 }}
+          animate={{ opacity: 1, y: -20, x: 30, scale: 1 }}
           exit={{ x: -100, y: 100, scale: 0, opacity: 0 }}
-          transition={{ duration: 0.1 }}
-          className="absolute container mx-auto p-4 bg-gray-300 w-[52vw] h-[71vh] bottom-8 rounded-md"
+          transition={{ duration: 0.3, ease: easeInOut }}
+          className="absolute container mx-auto p-4 bg-neutral-400 w-[46vw] h-[70vh] bottom-12 rounded-md"
         >
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -109,6 +111,23 @@ const AddExpense = () => {
                 <option value="Health">Health</option>
                 <option value="Education">Education</option>
                 <option value="Other">Other</option>
+              </select>
+            </div>
+            <div>
+              <label
+                htmlFor="division"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Category
+              </label>
+              <select
+                id="division"
+                ref={divisionRef}
+                className="mt-1 block h-9 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                required
+              >
+                <option value="expense">Expense</option>
+                <option value="income">Income</option>
               </select>
             </div>
 

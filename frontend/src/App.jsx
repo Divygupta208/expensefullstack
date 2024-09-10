@@ -8,6 +8,7 @@ import { useSelector } from "react-redux";
 import ReportsPage from "./pages/reportspage";
 import ForgotPasswordPage from "./pages/forgotpasswordpage";
 import ResetPassword from "./components/resetpassword";
+import ExpensesPage from "./pages/ExpensesPage";
 
 function App() {
   const navigate = useNavigate();
@@ -43,10 +44,8 @@ function App() {
               token ? <UserHomePage /> : <Navigate to="/auth?mode=login" />
             }
           />
-          <Route
-            path="reports"
-            element={isPremiumUser ? <ReportsPage /> : <Navigate to="/Home" />}
-          />
+          <Route path="premium" element={<ReportsPage />} />
+          <Route path="expenses" element={<ExpensesPage />} />
         </Route>
         <Route path="/action" element={<ForgotPasswordPage />} />
         <Route path="/resetpassword/:id" element={<ResetPassword />} />

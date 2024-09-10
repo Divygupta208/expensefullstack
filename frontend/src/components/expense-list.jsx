@@ -6,15 +6,11 @@ import { RiDeleteBin4Fill } from "react-icons/ri";
 import expenseSlice, { expenseAction } from "../store/expense-slice";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { IoIosAddCircleOutline } from "react-icons/io";
+import { FaArrowAltCircleDown, FaArrowAltCircleUp } from "react-icons/fa";
 
-const ExpenseList = () => {
+const ExpenseList = ({ overallexpenses, showAddForm }) => {
   const dispatch = useDispatch();
-
-  useEffect(() => {
-    dispatch(expenseAction.fetchExpenses());
-  }, [dispatch]);
-
-  const expenses = useSelector((state) => state.expense.items);
 
   const handleDelete = async (id) => {
     const token = localStorage.getItem("token");
@@ -45,7 +41,7 @@ const ExpenseList = () => {
 
   return (
     <motion.div
-      className=" w-full max-h-[70vh] ml-8 mt-5 md:w-1/3 lg:w-1/2 bg-gray-100 p-6 rounded-lg shadow-[0px_15px_30px_rgba(0,0,0,0.3)] flex flex-col text-center"
+      className=" h-[70vh] ml-8 w-[45vw] overflow-scroll bg-gray-100 p-6 rounded-lg shadow-[0px_15px_30px_rgba(0,0,0,0.3)] flex flex-col text-center"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
@@ -54,10 +50,10 @@ const ExpenseList = () => {
         Expenditure
       </h2>
       <ul className="space-y-6">
-        {expenses.map((expense) => (
+        {overallexpenses.map((expense) => (
           <motion.li
             key={expense.id}
-            className="p-1 bg-[#b0b0b068] rounded-lg shadow-lg transform transition-transform"
+            className="p-1 bg-[#a8a8a868] rounded-lg shadow-lg transform transition-transform"
             whileHover={{
               scale: 1.02,
               boxShadow: "0px 10px 30px rgba(0,0,0,0.2)",
@@ -65,6 +61,13 @@ const ExpenseList = () => {
             whileTap={{ scale: 0.95 }}
           >
             <div className="flex justify-between items-center">
+              <span>
+                {expense.division === "income" ? (
+                  <FaArrowAltCircleDown className="text-green-500" />
+                ) : (
+                  <FaArrowAltCircleUp className="text-red-600" />
+                )}
+              </span>
               <div>
                 <p className="text-md font-semibold text-gray-800">
                   {expense.description}
@@ -74,17 +77,26 @@ const ExpenseList = () => {
               <p className="text-md font-bold text-gray-800">
                 ${parseFloat(expense.price).toFixed(2) || "0.00"}
               </p>
-              <Link
-                to={``}
+              <button
                 className="text-red-500 hover:underline"
                 onClick={() => handleDelete(expense.id)}
               >
                 <RiDeleteBin4Fill className="hover:scale-125" />
-              </Link>
+              </button>
             </div>
           </motion.li>
         ))}
       </ul>
+      <motion.div
+        onClick={showAddForm}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9, y: -5 }}
+        className=" w-16 h-16 bg-blue-500 hover:bg-blue-600 text-white rounded-full flex items-center justify-center shadow-lg cursor-pointer absolute lg:bottom-14 left-4 z-50"
+      >
+        <button>
+          <IoIosAddCircleOutline className="w-10 h-10" />
+        </button>
+      </motion.div>
     </motion.div>
   );
 };
