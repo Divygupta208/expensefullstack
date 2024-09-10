@@ -10,9 +10,9 @@ const ReportsDropdown = ({ isPremiumUser }) => {
   return (
     <>
       <div className="flex flex-col">
-        <Link
+        <button
           onClick={(e) => {
-            if (!isPremiumUser) {
+            if (isPremiumUser) {
               e.preventDefault();
               toast.info("Please subscribe to access this feature.");
             } else {
@@ -22,20 +22,20 @@ const ReportsDropdown = ({ isPremiumUser }) => {
           className="py-2 px-4 hover:bg-lime-300 rounded-md"
         >
           Leaderboard
-        </Link>
-        <Link
+        </button>
+        <button
           onClick={(e) => {
-            if (!isPremiumUser) {
-              e.preventDefault();
-              toast.info("Please subscribe to access this feature.");
-            } else {
-              navigate("/premium?feature=reports");
-            }
+            // if (isPremiumUser) {
+            //   e.preventDefault();
+            //   toast.info("Please subscribe to access this feature.");
+            // } else {
+            navigate("/premium?feature=reports");
+            // }
           }}
           className="py-2 px-4 hover:bg-lime-300 rounded-md"
         >
           Reports
-        </Link>
+        </button>
       </div>
     </>
   );

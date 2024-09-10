@@ -11,6 +11,9 @@ import {
   YAxis,
   CartesianGrid,
   ResponsiveContainer,
+  Bar,
+  BarChart,
+  Legend,
 } from "recharts";
 import { FaInfoCircle } from "react-icons/fa";
 import LocomotiveScroll from "locomotive-scroll";
@@ -151,6 +154,12 @@ const Charts = ({ overallexpenses, filter }) => {
   } else if (filter === "yearly") {
     chartData = processYearlyData(overallexpenses);
   }
+
+  const colors = ["#8884d8", "#82ca9d", "#ffc658", "#ff7300", "#d88484"];
+  const getRandomColor = (index) => {
+    return colors[index % colors.length]; // Cycle through the colors array based on the index
+  };
+
   return (
     <div>
       <div className=" bg-white p-4 rounded-lg shadow-2xl w-[40vw] h-[80vh]">
@@ -162,7 +171,7 @@ const Charts = ({ overallexpenses, filter }) => {
             <Pie
               data={categoryData}
               dataKey="value"
-              outerRadius={80}
+              outerRadius={70}
               fill="#8884d8"
               label
             >
@@ -205,16 +214,20 @@ const Charts = ({ overallexpenses, filter }) => {
         </div>
 
         <ResponsiveContainer width="100%" height={220}>
-          <LineChart
+          <BarChart
             data={chartData}
-            margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+            margin={{ top: 10, right: 10, left: 0, bottom: 10 }}
           >
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="name" />
             <YAxis />
             <Tooltip />
-            <Line type="monotone" dataKey="expenses" stroke="#8884d8" />
-          </LineChart>
+            <Bar dataKey="expenses">
+              {chartData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={getRandomColor(index)} />
+              ))}
+            </Bar>
+          </BarChart>
         </ResponsiveContainer>
       </div>
     </div>

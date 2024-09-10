@@ -52,6 +52,7 @@ const NavigationBar = () => {
     }
   };
   const toggleReportsDropdown = (e) => {
+    e.preventDefault();
     if (!userLoggedIn) {
       toast.info("Please Log In 😒");
     } else {
@@ -223,7 +224,7 @@ const NavigationBar = () => {
             </NavLink>
 
             <NavLink
-              to="#"
+              to=""
               onClick={toggleReportsDropdown}
               className={
                 activeLink === "reports"
@@ -235,7 +236,7 @@ const NavigationBar = () => {
             </NavLink>
 
             <NavLink
-              to="#"
+              to=""
               className={
                 activeLink === "settings"
                   ? "bg-orange-500 p-2 rounded-xl"
@@ -246,7 +247,7 @@ const NavigationBar = () => {
             </NavLink>
 
             <NavLink
-              to="#"
+              to=""
               onClick={toggleProfileView}
               className={
                 activeLink === "profile"

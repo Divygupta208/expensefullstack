@@ -3,6 +3,7 @@ import React from "react";
 import { useLocation } from "react-router-dom";
 import LeaderBoard from "../components/reports";
 import UserReports from "../components/user-reports";
+import { useSelector } from "react-redux";
 
 const ReportsPage = () => {
   const location = useLocation();
