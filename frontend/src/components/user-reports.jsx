@@ -2,9 +2,13 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 import { expenseAction } from "../store/expense-slice";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+import { Tooltip } from "react-tippy";
+import { FaInfoCircle } from "react-icons/fa";
 
 const UserReports = () => {
-  const isPremiumUser = true;
+  const isPremiumUser = useSelector((state) => state.auth.isPremiumUser);
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(expenseAction.fetchExpenses());
@@ -124,7 +128,63 @@ const UserReports = () => {
   }, [yearFilter, monthFilter, weekFilter, expenses]);
 
   const handleDownloadReport = () => {
-    console.log("Download report");
+    const doc = new jsPDF();
+    const monthName = getMonthName(monthFilter);
+
+    // Add title
+    doc.setFontSize(18);
+    doc.text(`${monthName} Report`, 14, 16);
+
+    // Add detailed report
+    doc.autoTable({
+      head: [["S.No", "Date", "Category", "Description", "Income", "Expense"]],
+      body: filteredExpenses.map((expense, index) => [
+        index + 1,
+        new Date(expense.createdAt).toLocaleDateString(),
+        expense.category,
+        expense.description,
+        expense.division === "income" ? `$${expense.price.toFixed(2)}` : "",
+        expense.division === "expense" ? `$${expense.price.toFixed(2)}` : "",
+      ]),
+      startY: 30,
+    });
+
+    // Add totals
+    doc.setFontSize(14);
+    doc.text(
+      `Total Expenses: -$${totalExpenses.toFixed(2)}`,
+      14,
+      doc.autoTable.previous.finalY + 10
+    );
+    doc.text(
+      `Total Income: +$${totalIncome.toFixed(2)}`,
+      14,
+      doc.autoTable.previous.finalY + 20
+    );
+    doc.text(
+      `Net Savings: $${(totalIncome - totalExpenses).toFixed(2)}`,
+      14,
+      doc.autoTable.previous.finalY + 30
+    );
+
+    // Add annual report
+    doc.text("Annual Report", 14, doc.autoTable.previous.finalY + 40);
+    doc.autoTable({
+      startY: doc.autoTable.previous.finalY + 50,
+      head: [["Month", "Income", "Expense", "Savings"]],
+      body: yearlyData.map((data) => [
+        monthNames[data.month - 1],
+        `$${data.income.toFixed(2)}`,
+        `$${data.expense.toFixed(2)}`,
+        `$${data.savings.toFixed(2)}`,
+      ]),
+    });
+
+    doc.save(`${monthName}_Report.pdf`);
+  };
+
+  const getMonthName = (month) => {
+    return monthNames[month - 1] || "";
   };
 
   const yearOptions = Array.from(
@@ -171,7 +231,7 @@ const UserReports = () => {
           >
             {monthOptions.map((month) => (
               <option key={month} value={month}>
-                {month}
+                {monthNames[month - 1]}({month})
               </option>
             ))}
           </select>
@@ -192,16 +252,30 @@ const UserReports = () => {
           </select>
         </div>
 
-        {isPremiumUser && (
-          <motion.button
-            onClick={handleDownloadReport}
-            className="bg-stone-700 text-white p-2 rounded-md shadow-md hover:bg-stone-400"
-            whileHover={{ scale: 1.05 }}
-            transition={{ duration: 0.2 }}
-          >
-            Download Report
-          </motion.button>
-        )}
+        <motion.button
+          onClick={handleDownloadReport}
+          className={
+            isPremiumUser
+              ? "bg-teal-500 text-white p-2 rounded-md shadow-md hover:bg-stone-400 flex "
+              : "bg-red-500 text-white p-2 rounded-md shadow-md flex"
+          }
+          whileHover={isPremiumUser && { scale: 1.05 }}
+          transition={{ duration: 0.2 }}
+          disabled={!isPremiumUser}
+        >
+          {!isPremiumUser && (
+            <Tooltip
+              animation="shift"
+              title="This is a premium feature 😍!"
+              position="top"
+              trigger="mouseenter"
+              inertia={true}
+            >
+              <FaInfoCircle style={{ cursor: "pointer" }} />
+            </Tooltip>
+          )}
+          Download Report
+        </motion.button>
       </motion.div>
 
       <motion.div
@@ -211,7 +285,7 @@ const UserReports = () => {
         transition={{ duration: 0.5 }}
       >
         <h2 className="text-lg font-bold mb-4 text-center rounded-2xl">
-          Detailed Reports
+          Detailed {monthNames[monthFilter - 1]}-Reports
         </h2>
         <table className="min-w-full bg-white border border-gray-200 rounded-2xl overflow-hidden">
           <thead className="bg-slate-600 text-white">

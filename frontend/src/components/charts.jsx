@@ -1,5 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
+import "react-tippy/dist/tippy.css";
+import { Tooltip as Tippy } from "react-tippy";
+
 import {
   PieChart,
   Pie,
@@ -191,14 +194,15 @@ const Charts = ({ overallexpenses, filter }) => {
         </h2>
         <div className="flex">
           {!isPremiumUser && (
-            <div class="relative group bottom-0 z-100">
-              <span class="text-md text-red-500 rounded-full p-0 cursor-pointer">
-                <FaInfoCircle className="" />
-              </span>
-              <div class="absolute transform -translate-x-48 -translate-y-7 mt-5 w-48 p-2 bg-red-600 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                This is a premium feature!, Subscribe to set week.
-              </div>
-            </div>
+            <Tippy
+              animation="scale"
+              title="This is a premium feature!"
+              position="top"
+              trigger="mouseenter"
+              inertia={true}
+            >
+              <FaInfoCircle style={{ cursor: "pointer" }} />
+            </Tippy>
           )}
           <select
             className="mb-4 p-2 border border-gray-300 rounded-xl"
