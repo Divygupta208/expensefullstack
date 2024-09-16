@@ -5,9 +5,10 @@ import { expenseAction } from "../store/expense-slice";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import { Tooltip } from "react-tippy";
-import { FaInfoCircle } from "react-icons/fa";
+import { FaHistory, FaInfoCircle } from "react-icons/fa";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import PreviousReports from "./previousreports";
 
 const UserReports = () => {
   const isPremiumUser = useSelector((state) => state.auth.isPremiumUser);
@@ -24,6 +25,12 @@ const UserReports = () => {
   const [totalExpenses, setTotalExpenses] = useState(0);
   const [totalIncome, setTotalIncome] = useState(0);
   const [yearlyData, setYearlyData] = useState([]);
+
+  const [showPreviousReports, setShowPreviousReports] = useState(false);
+
+  const togglePreviousReports = () => {
+    setShowPreviousReports(!showPreviousReports);
+  };
 
   const monthNames = [
     "January",
@@ -305,6 +312,29 @@ const UserReports = () => {
           )}
           Download Report
         </motion.button>
+        <motion.button
+          onClick={togglePreviousReports}
+          className={
+            isPremiumUser
+              ? "bg-teal-500 text-white p-2 rounded-md shadow-md hover:bg-stone-400 flex "
+              : "bg-red-500 text-white p-2 rounded-md shadow-md flex"
+          }
+          whileHover={isPremiumUser && { scale: 1.05 }}
+          transition={{ duration: 0.2 }}
+          // disabled={!isPremiumUser}
+        >
+          {!isPremiumUser && (
+            <Tooltip
+              animation="shift"
+              title="Overview previous downloads!"
+              position="top"
+              trigger="mouseenter"
+              inertia={true}
+            >
+              <FaHistory style={{ cursor: "pointer" }} />
+            </Tooltip>
+          )}
+        </motion.button>
       </motion.div>
 
       <motion.div
@@ -389,6 +419,9 @@ const UserReports = () => {
           </tbody>
         </table>
       </motion.div>
+
+      {showPreviousReports && <PreviousReports />}
+
       <motion.div
         className="yearly-data mt-10 shadow-2xl rounded-xl bg-gray-200"
         initial={{ opacity: 0 }}

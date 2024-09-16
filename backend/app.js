@@ -34,7 +34,7 @@ User.hasMany(ForgotPasswordRequest);
 ForgotPasswordRequest.belongsTo(User);
 
 sequelize
-  .sync()
+  .sync({ alter: true })
   .then((result) => {
     app.listen(3000, () => {
       console.log("Server is running on port 3000");

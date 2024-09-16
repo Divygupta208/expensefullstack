@@ -2,6 +2,7 @@ const User = require("../models/user");
 const { jsPDF } = require("jspdf");
 require("jspdf-autotable");
 const AWS = require("aws-sdk");
+const ReportFile = require("../models/reportfile");
 
 const s3 = new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -169,10 +170,41 @@ exports.getReports = async (req, res, next) => {
     // Upload the PDF buffer to S3
     const fileUrl = await uploadToS3(pdfBuffer, filename);
 
+    await ReportFile.create({
+      userId: user.id,
+      fileUrl: fileUrl,
+      createdAt: new Date(),
+    });
+
     // Respond with the S3 file URL
     res.status(200).json({ fileUrl });
   } catch (error) {
     console.error("Error generating PDF report:", error);
     res.status(500).json({ message: "Failed to generate report" });
+  }
+};
+
+exports.getDownloadedReports = async (req, res, next) => {
+  try {
+    const user = req.user;
+
+    const reports = await ReportFile.findAll({
+      where: { userId: user.id },
+      order: [["createdAt", "DESC"]],
+    });
+
+    if (!reports.length) {
+      return res.status(404).json({ message: "No previous reports found" });
+    }
+
+    const reportList = reports.map((report) => ({
+      fileUrl: report.fileUrl,
+      createdAt: report.createdAt,
+    }));
+
+    res.status(200).json({ reports: reportList });
+  } catch (error) {
+    console.error("Error fetching previous reports:", error);
+    res.status(500).json({ message: "Failed to fetch previous reports" });
   }
 };
