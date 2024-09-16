@@ -196,12 +196,16 @@ const Charts = ({ overallexpenses, filter }) => {
           {!isPremiumUser && (
             <Tippy
               animation="scale"
-              title="This is a premium feature!"
+              title="This is a premium feature ⭐⭐"
               position="top"
               trigger="mouseenter"
               inertia={true}
+              theme="light"
             >
-              <FaInfoCircle style={{ cursor: "pointer" }} />
+              <FaInfoCircle
+                style={{ cursor: "pointer" }}
+                className="text-red-600"
+              />
             </Tippy>
           )}
           <select

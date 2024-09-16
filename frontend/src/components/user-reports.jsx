@@ -6,6 +6,8 @@ import jsPDF from "jspdf";
 import "jspdf-autotable";
 import { Tooltip } from "react-tippy";
 import { FaInfoCircle } from "react-icons/fa";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const UserReports = () => {
   const isPremiumUser = useSelector((state) => state.auth.isPremiumUser);
@@ -127,60 +129,87 @@ const UserReports = () => {
     calculateYearlyData(expenses, yearFilter);
   }, [yearFilter, monthFilter, weekFilter, expenses]);
 
-  const handleDownloadReport = () => {
-    const doc = new jsPDF();
-    const monthName = getMonthName(monthFilter);
+  // const handleDownloadReportFrontend = () => {
+  //   const doc = new jsPDF();
+  //   const monthName = getMonthName(monthFilter);
 
-    // Add title
-    doc.setFontSize(18);
-    doc.text(`${monthName} Report`, 14, 16);
+  //   // Add title
+  //   doc.setFontSize(18);
+  //   doc.text(`${monthName} Report`, 14, 16);
 
-    // Add detailed report
-    doc.autoTable({
-      head: [["S.No", "Date", "Category", "Description", "Income", "Expense"]],
-      body: filteredExpenses.map((expense, index) => [
-        index + 1,
-        new Date(expense.createdAt).toLocaleDateString(),
-        expense.category,
-        expense.description,
-        expense.division === "income" ? `$${expense.price.toFixed(2)}` : "",
-        expense.division === "expense" ? `$${expense.price.toFixed(2)}` : "",
-      ]),
-      startY: 30,
-    });
+  //   // Add detailed report
+  //   doc.autoTable({
+  //     head: [["S.No", "Date", "Category", "Description", "Income", "Expense"]],
+  //     body: filteredExpenses.map((expense, index) => [
+  //       index + 1,
+  //       new Date(expense.createdAt).toLocaleDateString(),
+  //       expense.category,
+  //       expense.description,
+  //       expense.division === "income" ? `$${expense.price.toFixed(2)}` : "",
+  //       expense.division === "expense" ? `$${expense.price.toFixed(2)}` : "",
+  //     ]),
+  //     startY: 30,
+  //   });
 
-    // Add totals
-    doc.setFontSize(14);
-    doc.text(
-      `Total Expenses: -$${totalExpenses.toFixed(2)}`,
-      14,
-      doc.autoTable.previous.finalY + 10
-    );
-    doc.text(
-      `Total Income: +$${totalIncome.toFixed(2)}`,
-      14,
-      doc.autoTable.previous.finalY + 20
-    );
-    doc.text(
-      `Net Savings: $${(totalIncome - totalExpenses).toFixed(2)}`,
-      14,
-      doc.autoTable.previous.finalY + 30
-    );
+  //   // Add totals
+  //   doc.setFontSize(14);
+  //   doc.text(
+  //     `Total Expenses: -$${totalExpenses.toFixed(2)}`,
+  //     14,
+  //     doc.autoTable.previous.finalY + 10
+  //   );
+  //   doc.text(
+  //     `Total Income: +$${totalIncome.toFixed(2)}`,
+  //     14,
+  //     doc.autoTable.previous.finalY + 20
+  //   );
+  //   doc.text(
+  //     `Net Savings: $${(totalIncome - totalExpenses).toFixed(2)}`,
+  //     14,
+  //     doc.autoTable.previous.finalY + 30
+  //   );
 
-    // Add annual report
-    doc.text("Annual Report", 14, doc.autoTable.previous.finalY + 40);
-    doc.autoTable({
-      startY: doc.autoTable.previous.finalY + 50,
-      head: [["Month", "Income", "Expense", "Savings"]],
-      body: yearlyData.map((data) => [
-        monthNames[data.month - 1],
-        `$${data.income.toFixed(2)}`,
-        `$${data.expense.toFixed(2)}`,
-        `$${data.savings.toFixed(2)}`,
-      ]),
-    });
+  //   // Add annual report
+  //   doc.text("Annual Report", 14, doc.autoTable.previous.finalY + 40);
+  //   doc.autoTable({
+  //     startY: doc.autoTable.previous.finalY + 50,
+  //     head: [["Month", "Income", "Expense", "Savings"]],
+  //     body: yearlyData.map((data) => [
+  //       monthNames[data.month - 1],
+  //       `$${data.income.toFixed(2)}`,
+  //       `$${data.expense.toFixed(2)}`,
+  //       `$${data.savings.toFixed(2)}`,
+  //     ]),
+  //   });
 
-    doc.save(`${monthName}_Report.pdf`);
+  //   doc.save(`${monthName}_Report.pdf`);
+  // };
+
+  const handleDownloadReportBackend = async () => {
+    try {
+      const response = await fetch(
+        `http://localhost:3000/premium/reports?year=${yearFilter}&month=${monthFilter}&week=${weekFilter}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`, // Pass the user's auth token if required
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const data = await response.json();
+
+        toast(data.message);
+      }
+
+      const { fileUrl } = await response.json();
+      // Open the file URL in a new tab
+      window.open(fileUrl, "_blank");
+    } catch (error) {
+      toast(error);
+    }
   };
 
   const getMonthName = (month) => {
@@ -253,7 +282,7 @@ const UserReports = () => {
         </div>
 
         <motion.button
-          onClick={handleDownloadReport}
+          onClick={handleDownloadReportBackend}
           className={
             isPremiumUser
               ? "bg-teal-500 text-white p-2 rounded-md shadow-md hover:bg-stone-400 flex "
@@ -261,7 +290,7 @@ const UserReports = () => {
           }
           whileHover={isPremiumUser && { scale: 1.05 }}
           transition={{ duration: 0.2 }}
-          disabled={!isPremiumUser}
+          // disabled={!isPremiumUser}
         >
           {!isPremiumUser && (
             <Tooltip

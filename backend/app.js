@@ -22,7 +22,7 @@ const ForgotPasswordRequest = require("./models/forgot-password-request");
 app.use("/user", userRoute);
 app.use("/expense", authenticateUser, expenseRoute);
 app.use("/purchase", authenticateUser, purchaseRoute);
-app.use("/premium", authenticateUser, checkPremium, premiumRoute);
+app.use("/premium", authenticateUser, premiumRoute);
 
 User.hasMany(Expense);
 Expense.belongsTo(User);
