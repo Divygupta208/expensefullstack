@@ -321,7 +321,7 @@ const UserReports = () => {
           }
           whileHover={isPremiumUser && { scale: 1.05 }}
           transition={{ duration: 0.2 }}
-          // disabled={!isPremiumUser}
+          disabled={!isPremiumUser}
         >
           {!isPremiumUser && (
             <Tooltip
