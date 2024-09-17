@@ -52,7 +52,6 @@ const ExpenseList = ({ overallexpenses, showAddForm }) => {
     localStorage.setItem("rowsPerPage", newRowsPerPage);
   };
 
-  // Calculate the index of the first and last expense to display
   const indexOfLastExpense = currentPage * rowsPerPage;
   const indexOfFirstExpense = indexOfLastExpense - rowsPerPage;
   const currentExpenses = overallexpenses.slice(
@@ -60,7 +59,6 @@ const ExpenseList = ({ overallexpenses, showAddForm }) => {
     indexOfLastExpense
   );
 
-  // Calculate the total number of pages
   const totalPages = Math.ceil(overallexpenses.length / rowsPerPage);
 
   return (
