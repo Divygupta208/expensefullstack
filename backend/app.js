@@ -1,15 +1,11 @@
 const express = require("express");
 const app = express();
 const cors = require("cors");
+const fs = require("fs");
+const path = require("path");
 const bodyParser = require("body-parser");
 const sequelize = require("./util/database");
-require("dotenv").config();
-app.use(cors());
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
-
 const authenticateUser = require("./middleware/authuser");
-
 const userRoute = require("./routes/user");
 const purchaseRoute = require("./routes/purchase");
 const premiumRoute = require("./routes/premium");
@@ -19,10 +15,32 @@ const Expense = require("./models/expense");
 const Order = require("./models/order");
 const { checkPremium } = require("./middleware/checkpremium");
 const ForgotPasswordRequest = require("./models/forgot-password-request");
+const helmet = require("helmet");
+const morgan = require("morgan");
+
+require("dotenv").config();
+
+app.use(cors());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+app.use(helmet());
+app.use(helmet.hidePoweredBy());
+
+const accessLogStream = fs.createWriteStream(
+  path.join(__dirname, "access.log"),
+  { flags: "a" }
+);
+
+const errorLogStream = fs.createWriteStream(path.join(__dirname, "error.log"), {
+  flags: "a",
+});
+
+app.use(morgan("combined", { stream: accessLogStream }));
+
 app.use("/user", userRoute);
 app.use("/expense", authenticateUser, expenseRoute);
 app.use("/purchase", authenticateUser, purchaseRoute);
-app.use("/premium", authenticateUser, premiumRoute);
+app.use("/premium", authenticateUser, checkPremium, premiumRoute);
 
 User.hasMany(Expense);
 Expense.belongsTo(User);
@@ -33,11 +51,24 @@ Order.belongsTo(User);
 User.hasMany(ForgotPasswordRequest);
 ForgotPasswordRequest.belongsTo(User);
 
+app.use((err, req, res, next) => {
+  const errorMessage = `${new Date().toISOString()} - Error: ${err.message}\n`;
+  console.error(errorMessage);
+  errorLogStream.write(errorMessage);
+  res.status(500).json({ message: "Something went wrong!" });
+});
+
 sequelize
   .sync({ alter: true })
-  .then((result) => {
+  .then(() => {
     app.listen(3000, () => {
       console.log("Server is running on port 3000");
     });
   })
-  .catch((err) => {});
+  .catch((err) => {
+    const dbErrorMessage = `${new Date().toISOString()} - Database Error: ${
+      err.message
+    }\n`;
+    console.error(dbErrorMessage);
+    errorLogStream.write(dbErrorMessage);
+  });
