@@ -37,10 +37,12 @@ const errorLogStream = fs.createWriteStream(path.join(__dirname, "error.log"), {
 
 app.use(morgan("combined", { stream: accessLogStream }));
 
-app.use("/user", userRoute);
-app.use("/expense", authenticateUser, expenseRoute);
-app.use("/purchase", authenticateUser, purchaseRoute);
-app.use("/premium", authenticateUser, checkPremium, premiumRoute);
+app.use(express.static(path.join(__dirname, "public")));
+
+app.use("/api/user", userRoute);
+app.use("/api/expense", authenticateUser, expenseRoute);
+app.use("/api/purchase", authenticateUser, purchaseRoute);
+app.use("/api/premium", authenticateUser, checkPremium, premiumRoute);
 
 User.hasMany(Expense);
 Expense.belongsTo(User);
@@ -50,6 +52,10 @@ Order.belongsTo(User);
 
 User.hasMany(ForgotPasswordRequest);
 ForgotPasswordRequest.belongsTo(User);
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "dist", "index.html"));
+});
 
 app.use((err, req, res, next) => {
   const errorMessage = `${new Date().toISOString()} - Error: ${err.message}\n`;

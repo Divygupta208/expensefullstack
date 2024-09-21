@@ -25,7 +25,7 @@ const AddExpense = () => {
     };
 
     try {
-      const response = await fetch("http://localhost:3000/expense/addexpense", {
+      const response = await fetch("/api/expense/addexpense", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
