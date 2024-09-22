@@ -25,6 +25,14 @@ const Expense = sequelize.define("expense", {
     type: Sequelize.STRING,
     allowNull: false,
   },
+  userId: {
+    type: Sequelize.INTEGER,
+    references: {
+      model: "users", // Ensure this matches the name of your User model/table
+      key: "id",
+    },
+    allowNull: false, // If every expense must be associated with a user
+  },
 });
 
 module.exports = Expense;

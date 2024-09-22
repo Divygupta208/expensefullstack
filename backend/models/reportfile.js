@@ -3,13 +3,11 @@ const Sequelize = require("sequelize");
 const sequelize = require("../util/database");
 
 const ReportFile = sequelize.define("ReportFile", {
-  userId: {
+  id: {
     type: Sequelize.INTEGER,
+    autoIncrement: true,
     allowNull: false,
-    references: {
-      model: "Users",
-      key: "id",
-    },
+    primaryKey: true,
   },
   fileUrl: {
     type: Sequelize.STRING,
