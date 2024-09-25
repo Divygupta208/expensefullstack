@@ -22,13 +22,16 @@ const ExpenseList = ({ overallexpenses, showAddForm }) => {
   const handleDelete = async (id) => {
     const token = localStorage.getItem("token");
     try {
-      const response = await fetch(`/api/expense/delete/${id}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        `http://localhost:3000/api/expense/delete/${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (response.ok) {
         const data = await response.json();
@@ -60,7 +63,7 @@ const ExpenseList = ({ overallexpenses, showAddForm }) => {
 
   return (
     <motion.div
-      className="relative xl:h-[80vh] md:h-[60vh] ml-8 w-[45vw] overflow-hidden bg-gray-100 p-6 rounded-lg shadow-[0px_15px_30px_rgba(0,0,0,0.3)] flex flex-col"
+      className="relative h-[70vh] md:h-[80vh] ml-0 md:ml-8 w-[100vw] md:w-[45vw] overflow-hidden md:bg-gray-100 bg-white p-6 rounded-lg  shadow-none md:shadow-[0px_15px_30px_rgba(0,0,0,0.3)] flex flex-col"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
@@ -112,9 +115,9 @@ const ExpenseList = ({ overallexpenses, showAddForm }) => {
       </div>
 
       {/* Pagination Controls */}
-      <div className="flex justify-between items-center mt-4 ">
-        <div className="flex items-center ml-40">
-          <label className="mr-2">Rows per page:</label>
+      <div className="flex justify-between items-center mt-4 text-sm">
+        <div className="flex items-center ml-10 md:ml-40">
+          <label className="mr-2">Rows:</label>
           <select
             value={rowsPerPage}
             onChange={handleRowsPerPageChange}
@@ -131,9 +134,9 @@ const ExpenseList = ({ overallexpenses, showAddForm }) => {
           <button
             onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
             disabled={currentPage === 1}
-            className="px-4 py-2 bg-blue-500 text-white rounded-full shadow-md mr-2"
+            className="px-4 py-1 bg-blue-500 text-white rounded-full shadow-md mr-2 text-lg"
           >
-            Previous
+            ⇦
           </button>
           <span>
             Page {currentPage} of {totalPages}
@@ -143,9 +146,9 @@ const ExpenseList = ({ overallexpenses, showAddForm }) => {
               setCurrentPage((prev) => Math.min(prev + 1, totalPages))
             }
             disabled={currentPage === totalPages}
-            className="px-4 py-2 bg-blue-500 text-white rounded-full shadow-md ml-2"
+            className="px-4 py-1 text-lg bg-blue-500 text-white rounded-full shadow-md ml-2"
           >
-            Next
+            ⇨
           </button>
         </div>
       </div>
@@ -153,7 +156,7 @@ const ExpenseList = ({ overallexpenses, showAddForm }) => {
         onClick={showAddForm}
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9, y: -5 }}
-        className="w-10 h-10 bg-blue-500 hover:bg-blue-600 text-white rounded-full flex items-center justify-center shadow-lg cursor-pointer absolute lg:bottom-14 left-4 z-50"
+        className="bg-blue-500 hover:bg-blue-600 text-white rounded-full flex items-center justify-center shadow-lg cursor-pointer absolute bottom-5  left-2 z-30"
       >
         <button>
           <IoIosAddCircleOutline className="w-10 h-10" />

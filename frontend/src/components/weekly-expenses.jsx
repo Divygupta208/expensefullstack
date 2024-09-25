@@ -25,7 +25,7 @@ const WeeklyExpenses = () => {
   };
 
   return (
-    <div className="bg-white relative">
+    <div className="bg-white relative top-20 md:top-24">
       <div className="flex flex-col md:flex-row">
         <ExpenseList
           overallexpenses={weeklyExpenses}

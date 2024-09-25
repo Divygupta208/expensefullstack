@@ -25,14 +25,17 @@ const AddExpense = () => {
     };
 
     try {
-      const response = await fetch("/api/expense/addexpense", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(newExpense),
-      });
+      const response = await fetch(
+        "http://localhost:3000/api/expense/addexpense",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(newExpense),
+        }
+      );
 
       if (response.ok) {
         const data = await response.json();
@@ -53,7 +56,7 @@ const AddExpense = () => {
           animate={{ opacity: 1, y: -20, x: 30, scale: 1 }}
           exit={{ x: -100, y: 100, scale: 0, opacity: 0 }}
           transition={{ duration: 0.3, ease: easeInOut }}
-          className="absolute container mx-auto p-4 bg-neutral-400 w-[46vw] h-[70vh] bottom-12 rounded-md"
+          className="absolute container mx-auto p-4 bg-neutral-400 w-[80vw] md:w-[46vw] h-[70vh]  md:h-[70vh] bottom-12 rounded-md top-7"
         >
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>

@@ -57,7 +57,10 @@ const Signup = ({ mode }) => {
 
     if (isValid) {
       try {
-        const url = mode === "signup" ? "/api/user/signup" : "/api/user/login";
+        const url =
+          mode === "signup"
+            ? "http://localhost:3000/api/user/signup"
+            : "http://localhost:3000/api/user/login";
         const body =
           mode === "signup" ? { name, email, password } : { email, password };
 
@@ -118,29 +121,29 @@ const Signup = ({ mode }) => {
   return (
     <div className="flex flex-col md:flex-row mt-40 z-50">
       <div className="md:w-1/2 grid grid-cols-2 gap-4 p-4">
-        <div className="h-96 md:h-56 w-96">
+        <div className="h-96 md:h-56 w-96 hidden md:block">
           <img src="/cash-svgrepo-com.svg" alt="Image 1" className="" />
         </div>
-        <div className="h-64 md:h-56 w-64 -mx-10">
+        <div className="h-64 md:h-56 w-64 -mx-10 hidden md:block">
           <img src="/credit-card-svgrepo-com.svg" alt="Image 2" className="" />
         </div>
-        <div className="h-40 md:h-56 w-40 mx-72">
+        <div className="h-40 md:h-56 w-40 mx-72 hidden md:block">
           <img
             src="/my-category-svgrepo-com.svg"
             alt="Image 3"
             className="h-full w-full "
           />
         </div>
-        <div className="h-72 md:h-60 w-72 mx-[30vw] mt-[25vh] absolute">
+        <div className="h-72 md:h-60 w-72 mx-[30vw] mt-[25vh] absolute hidden md:block">
           <img src="/stock-svgrepo-com.svg" alt="Image 4" className="" />
         </div>
       </div>
 
       <div className="md:w-1/2 flex items-center justify-center">
-        <div className="w-full md:w-3/4 flex items-center justify-center">
+        <div className="md:w-3/4 w-[80vw] flex items-center justify-center">
           <form
             onSubmit={handleFormSubmit}
-            className="p-4 bg-white md:p-8 rounded-lg shadow-[10px_5px_60px_10px_rgba(0,0,0,0.3)] w-full"
+            className="w-[80vw] md:w-[80vw] p-4 bg-white md:p-8 rounded-lg shadow-[10px_5px_60px_10px_rgba(0,0,0,0.3)]"
           >
             {mode === "signup" && (
               <div className="mb-4">
@@ -213,7 +216,7 @@ const Signup = ({ mode }) => {
 
             <button
               type="submit"
-              className="bg-[#000000] text-white font-bold py-2 px-4 rounded hover:bg-cyan-800 w-36 mx-44"
+              className="bg-[#000000] text-white font-bold py-2 px-4 rounded hover:bg-cyan-800 w-36 md:mx-44 mx-[15vw]"
             >
               {mode === "signup" ? "Sign Up" : "Log In"}
             </button>

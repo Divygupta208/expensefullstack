@@ -25,7 +25,7 @@ const MonthlyExpenses = () => {
   };
 
   return (
-    <div className="bg-white relative">
+    <div className="bg-white top-20 md:top-24 relative">
       <div className="flex flex-col md:flex-row">
         <ExpenseList
           overallexpenses={monthlyExpenses}

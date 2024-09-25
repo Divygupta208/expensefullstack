@@ -115,77 +115,9 @@ const NavigationBar = () => {
     navigate("/auth?mode=login");
   };
 
-  const handleRazorPayButtonClick = async (e) => {
-    const token = localStorage.getItem("token");
-
-    const response = await fetch("/api/purchase/premiummembership", {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    const data = await response.json();
-
-    console.log(data);
-
-    const options = {
-      key: data.key_id,
-      order_id: data.order.id,
-      handler: async function (response) {
-        const updateResponse = await fetch(
-          "/api/purchase/updatetransactionstatus",
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              order_id: options.order_id,
-              payment_id: response.razorpay_payment_id,
-            }),
-          }
-        );
-
-        const result = await updateResponse.json();
-
-        if (result.success) {
-          toast("YaY are now a premium user!");
-          localStorage.setItem("token", result.token);
-          const decodedToken = jwtDecode(result.token);
-          const isPremium = decodedToken.isPremium;
-          dispatch(authAction.setIsPremium(isPremium));
-        } else {
-          toast.error("Please Try Again 🫤");
-        }
-      },
-    };
-
-    const rzp1 = new Razorpay(options);
-    rzp1.open();
-    e.preventDefault();
-
-    rzp1.on("payment.failed", async function (response) {
-      console.log("Payment Failed: ", response);
-
-      await fetch("/api/purchase/updatetransactionstatus", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          order_id: options.order_id,
-        }),
-      });
-
-      toast("Payment failed. Please try again.");
-    });
-  };
-
   return (
     <>
-      <nav className=" fixed w-full top-0 bg-white text-black p-4 shadow-xl font-semibold z-50">
+      <nav className="hidden md:block fixed w-full top-0 bg-white text-black p-4 shadow-xl font-semibold z-50">
         <div className="container mx-auto flex justify-between items-center">
           <div className="text-lg font-bold flex items-center">
             <img
@@ -285,7 +217,6 @@ const NavigationBar = () => {
           >
             <ProfileView
               isPremiumUser={isPremiumUser}
-              handleRazorPayButtonClick={handleRazorPayButtonClick}
               handleUserLogOut={handleUserLogOut}
             />
           </motion.div>

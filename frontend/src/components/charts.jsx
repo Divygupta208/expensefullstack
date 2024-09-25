@@ -164,11 +164,12 @@ const Charts = ({ overallexpenses, filter }) => {
   };
 
   return (
-    <div>
-      <div className=" bg-white p-4 rounded-lg shadow-2xl w-[40vw] h-[80vh]">
+    <div className="">
+      <div className="bg-white p-4 rounded-lg shadow-none md:shadow-2xl w-[100vw] md:w-[40vw] h-[100vh] md:h-[80vh]">
         <h2 className="text-xl font-bold mb-4 text-gray-900">
           Expenses by Category
         </h2>
+
         <ResponsiveContainer width="80%" height={200} className="ml-20 p-5">
           <PieChart>
             <Pie

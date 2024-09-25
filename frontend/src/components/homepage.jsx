@@ -31,12 +31,15 @@ const Homepage = () => {
   }, [dispatch]);
 
   return (
-    <div ref={scrollRef} className="bg-white top-20 relative ">
-      <div className="flex">
-        <div className="w-1/2">
+    <div
+      ref={scrollRef}
+      className="bg-white top-20 relative overflow-scroll h-[100vh]"
+    >
+      <div className="flex md:flex-row flex-col">
+        <div className="w-full">
           <ExpenseList overallexpenses={expenses} showAddForm={showAddForm} />
         </div>
-        <div className="w-1/2">
+        <div className="w-full">
           <Charts overallexpenses={expenses} filter="weekly" />
         </div>
       </div>

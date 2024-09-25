@@ -8,7 +8,7 @@
 /* Add custom styles specific to locomotive scroll */
 html,
 body {
-  overflow: hidden;
+  overflow: scroll;
 }
 
 [data-scroll-container] {

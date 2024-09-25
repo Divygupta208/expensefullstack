@@ -3,21 +3,84 @@ import { AnimatePresence, motion } from "framer-motion";
 import { IoDiamond } from "react-icons/io5";
 import { useSelector } from "react-redux";
 
-const ProfileView = ({
-  isPremiumUser,
-  handleRazorPayButtonClick,
-  handleUserLogOut,
-}) => {
+const ProfileView = ({ isPremiumUser, handleUserLogOut }) => {
   const userData = useSelector((state) => state.auth.userData);
 
+  const handleRazorPayButtonClick = async (e) => {
+    const token = localStorage.getItem("token");
+
+    const response = await fetch(
+      "http://localhost:3000/api/purchase/premiummembership",
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    const data = await response.json();
+
+    console.log(data);
+
+    const options = {
+      key: data.key_id,
+      order_id: data.order.id,
+      handler: async function (response) {
+        const updateResponse = await fetch(
+          "http://localhost:3000/api/purchase/updatetransactionstatus",
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              order_id: options.order_id,
+              payment_id: response.razorpay_payment_id,
+            }),
+          }
+        );
+
+        const result = await updateResponse.json();
+
+        if (result.success) {
+          toast("YaY are now a premium user!");
+          localStorage.setItem("token", result.token);
+          const decodedToken = jwtDecode(result.token);
+          const isPremium = decodedToken.isPremium;
+          dispatch(authAction.setIsPremium(isPremium));
+        } else {
+          toast.error("Please Try Again 🫤");
+        }
+      },
+    };
+
+    const rzp1 = new Razorpay(options);
+    rzp1.open();
+    e.preventDefault();
+
+    rzp1.on("payment.failed", async function (response) {
+      console.log("Payment Failed: ", response);
+
+      await fetch(
+        "http://localhost:3000/api/purchase/updatetransactionstatus",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            order_id: options.order_id,
+          }),
+        }
+      );
+
+      toast("Payment failed. Please try again.");
+    });
+  };
+
   return (
-    // <motion.div
-    //   initial={{ opacity: 0, y: -10 }}
-    //   animate={{ opacity: 1, y: 0 }}
-    //   exit={{ opacity: 0, y: -10 }}
-    //   transition={{ duration: 0.3 }}
-    //   className="absolute top-16 w-64 right-4 bg-[#ffffff] text-black p-4 shadow-lg rounded-lg z-50"
-    // >
     <div className="flex flex-col items-center">
       <img
         src={userData.image}
@@ -47,7 +110,6 @@ const ProfileView = ({
         Log Out
       </button>
     </div>
-    // </motion.div>
   );
 };
 

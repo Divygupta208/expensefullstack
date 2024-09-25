@@ -37,7 +37,7 @@ app.use(helmet.hidePoweredBy());
 
 // app.use(morgan("combined", { stream: accessLogStream }));
 
-// app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, "public", "dist")));
 
 app.use("/api/user", userRoute);
 app.use("/api/expense", authenticateUser, expenseRoute);
@@ -56,9 +56,9 @@ ForgotPasswordRequest.belongsTo(User);
 User.hasMany(ReportFile);
 ReportFile.belongsTo(User);
 
-// app.get("*", (req, res) => {
-//   res.sendFile(path.join(__dirname, "public", "dist", "index.html"));
-// });
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "dist", "index.html"));
+});
 
 // app.use((err, req, res, next) => {
 //   const errorMessage = `${new Date().toISOString()} - Error: ${err.message}\n`;
@@ -68,7 +68,7 @@ ReportFile.belongsTo(User);
 // });
 
 sequelize
-  .sync({ force: true })
+  .sync()
   .then(() => {
     app.listen(3000, () => {
       console.log("Server is running on port 3000");
