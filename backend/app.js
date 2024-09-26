@@ -39,6 +39,9 @@ app.use(helmet.hidePoweredBy());
 
 app.use(express.static(path.join(__dirname, "public", "dist")));
 
+app.use("/api", (req, res) => {
+  res.send("Hello From Api");
+});
 app.use("/api/user", userRoute);
 app.use("/api/expense", authenticateUser, expenseRoute);
 app.use("/api/purchase", authenticateUser, purchaseRoute);
