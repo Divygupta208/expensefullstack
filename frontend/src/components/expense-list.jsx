@@ -5,6 +5,7 @@ import { RiDeleteBin4Fill } from "react-icons/ri";
 import { toast } from "react-toastify";
 import { IoIosAddCircleOutline } from "react-icons/io";
 import { FaArrowAltCircleDown, FaArrowAltCircleUp } from "react-icons/fa";
+import { expenseAction } from "../store/expense-slice";
 
 const ExpenseList = ({ overallexpenses, showAddForm }) => {
   const dispatch = useDispatch();
@@ -32,7 +33,7 @@ const ExpenseList = ({ overallexpenses, showAddForm }) => {
 
       if (response.ok) {
         const data = await response.json();
-        console.log(data.message);
+
         toast.success(data.message);
         dispatch(expenseAction.removeExpense(id));
       } else {

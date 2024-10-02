@@ -69,6 +69,8 @@ const Signup = ({ mode }) => {
           body: JSON.stringify(body),
         });
 
+        console.log(response);
+
         if (response.ok) {
           toast.success(
             mode === "signup"
