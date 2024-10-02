@@ -85,7 +85,7 @@ exports.postLoginUser = async (req, res, next) => {
 
     const token = jwt.sign(
       { userId: user.id, email: user.email, isPremium: user.isPremium },
-      process.env.JWT_SECRET,
+      "b2a76f7c3e5f8d1a9c3b2e5d7f6a8c9b1e2d3f4a6b7c9e8d7f6b9c1a3e5d7f6b",
       { expiresIn: "1h" }
     );
     await t.commit();
