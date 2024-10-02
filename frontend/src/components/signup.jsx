@@ -57,7 +57,10 @@ const Signup = ({ mode }) => {
 
     if (isValid) {
       try {
-        const url = mode === "signup" ? "/api/user/signup" : "/api/user/login";
+        const url =
+          mode === "signup"
+            ? "http://localhost:3001/api/user/signup"
+            : "http://localhost:3001/api/user/login";
         const body =
           mode === "signup" ? { name, email, password } : { email, password };
 

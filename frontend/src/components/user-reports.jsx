@@ -195,7 +195,7 @@ const UserReports = () => {
   const handleDownloadReportBackend = async () => {
     try {
       const response = await fetch(
-        `/api/premium/reports?year=${yearFilter}&month=${monthFilter}&week=${weekFilter}`,
+        `http://localhost:3001/api/premium/reports?year=${yearFilter}&month=${monthFilter}&week=${weekFilter}`,
         {
           method: "GET",
           headers: {

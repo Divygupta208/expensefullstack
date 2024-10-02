@@ -1,20 +1,28 @@
 import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { IoDiamond } from "react-icons/io5";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { authAction } from "../store/store";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { jwtDecode } from "jwt-decode";
 
 const ProfileView = ({ isPremiumUser, handleUserLogOut }) => {
   const userData = useSelector((state) => state.auth.userData);
+  const dispatch = useDispatch();
 
   const handleRazorPayButtonClick = async (e) => {
     const token = localStorage.getItem("token");
 
-    const response = await fetch("/api/purchase/premiummembership", {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await fetch(
+      "http://localhost:3001/api/purchase/premiummembership",
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     const data = await response.json();
 
     console.log(data);
@@ -24,7 +32,7 @@ const ProfileView = ({ isPremiumUser, handleUserLogOut }) => {
       order_id: data.order.id,
       handler: async function (response) {
         const updateResponse = await fetch(
-          "/api/purchase/updatetransactionstatus",
+          "http://localhost:3001/api/purchase/updatetransactionstatus",
           {
             method: "POST",
             headers: {
@@ -39,6 +47,7 @@ const ProfileView = ({ isPremiumUser, handleUserLogOut }) => {
         );
 
         const result = await updateResponse.json();
+        console.log(result);
 
         if (result.success) {
           toast("YaY are now a premium user!");
@@ -59,16 +68,19 @@ const ProfileView = ({ isPremiumUser, handleUserLogOut }) => {
     rzp1.on("payment.failed", async function (response) {
       console.log("Payment Failed: ", response);
 
-      await fetch("/api/purchase/updatetransactionstatus", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          order_id: options.order_id,
-        }),
-      });
+      await fetch(
+        "http://localhost:3001/api/purchase/updatetransactionstatus",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            order_id: options.order_id,
+          }),
+        }
+      );
 
       toast("Payment failed. Please try again.");
     });

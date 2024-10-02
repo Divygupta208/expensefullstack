@@ -108,23 +108,19 @@ exports.getReports = async (req, res, next) => {
       }
     });
 
-    // Initialize jsPDF instance
     const doc = new jsPDF();
 
-    // Set report title
     doc.setFontSize(18);
     const monthName = new Date(year, month - 1).toLocaleString("default", {
       month: "long",
     });
     doc.text(`${monthName} Report`, 10, 10);
 
-    // Add user info to the report
     doc.setFontSize(12);
     doc.text(`User: ${user.name}`, 10, 20);
     doc.text(`Email: ${user.email}`, 10, 30);
     doc.text(`Date: ${new Date().toLocaleDateString()}`, 10, 40);
 
-    // Prepare data for the table
     const tableData = filteredExpenses.map((expense, index) => [
       index + 1,
       new Date(expense.createdAt).toLocaleDateString(),
@@ -134,14 +130,12 @@ exports.getReports = async (req, res, next) => {
       expense.division === "expense" ? `₹${expense.price.toFixed(2)}` : "",
     ]);
 
-    // Use autoTable to add expense data as a table in the PDF
     doc.autoTable({
       head: [["S.No", "Date", "Category", "Description", "Income", "Expense"]],
       body: tableData,
       startY: 50,
     });
 
-    // Add totals
     doc.text(
       `Total Income: ₹${totalIncome.toFixed(2)}`,
       10,
@@ -158,16 +152,12 @@ exports.getReports = async (req, res, next) => {
       doc.autoTable.previous.finalY + 30
     );
 
-    // Generate the PDF as an ArrayBuffer
     const pdfArrayBuffer = doc.output("arraybuffer");
 
-    // Convert ArrayBuffer to Buffer (Node.js compatible format)
     const pdfBuffer = Buffer.from(pdfArrayBuffer);
 
-    // Create a filename for the report
     const filename = `ExpenseReport-${user.id}-${new Date().toISOString()}.pdf`;
 
-    // Upload the PDF buffer to S3
     const fileUrl = await uploadToS3(pdfBuffer, filename);
 
     await ReportFile.create({
@@ -176,7 +166,6 @@ exports.getReports = async (req, res, next) => {
       createdAt: new Date(),
     });
 
-    // Respond with the S3 file URL
     res.status(200).json({ fileUrl });
   } catch (error) {
     console.error("Error generating PDF report:", error);

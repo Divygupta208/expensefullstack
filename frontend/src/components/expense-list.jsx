@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { useDispatch } from "react-redux";
 import { RiDeleteBin4Fill } from "react-icons/ri";
 import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { IoIosAddCircleOutline } from "react-icons/io";
 import { FaArrowAltCircleDown, FaArrowAltCircleUp } from "react-icons/fa";
 import { expenseAction } from "../store/expense-slice";
@@ -23,13 +24,16 @@ const ExpenseList = ({ overallexpenses, showAddForm }) => {
   const handleDelete = async (id) => {
     const token = localStorage.getItem("token");
     try {
-      const response = await fetch(`/api/expense/delete/${id}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        `http://localhost:3001/api/expense/delete/${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (response.ok) {
         const data = await response.json();
@@ -112,7 +116,6 @@ const ExpenseList = ({ overallexpenses, showAddForm }) => {
         </ul>
       </div>
 
-      {/* Pagination Controls */}
       <div className="flex justify-between items-center mt-4 text-sm">
         <div className="flex items-center ml-10 md:ml-40">
           <label className="mr-2">Rows:</label>

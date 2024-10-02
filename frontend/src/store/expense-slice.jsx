@@ -4,13 +4,16 @@ const fetchExpenses = () => {
   return async (dispatch) => {
     const token = localStorage.getItem("token");
     try {
-      const response = await fetch("/api/expense/getexpense", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        "http://localhost:3001/api/expense/getexpense",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       if (!response.ok) {
         throw new Error("Failed to fetch expenses");
       }
