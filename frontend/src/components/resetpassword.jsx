@@ -20,16 +20,13 @@ const ResetPassword = () => {
     }
 
     try {
-      const response = await fetch(
-        `http://localhost:3000/api/user/resetpassword/${id}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json", // Make sure to specify this
-          },
-          body: JSON.stringify({ newPassword }), // Send the password as JSON
-        }
-      );
+      const response = await fetch(`/api/user/resetpassword/${id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json", // Make sure to specify this
+        },
+        body: JSON.stringify({ newPassword }), // Send the password as JSON
+      });
 
       // Check if the request was successful
       if (!response.ok) {

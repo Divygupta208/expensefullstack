@@ -22,16 +22,13 @@ const ExpenseList = ({ overallexpenses, showAddForm }) => {
   const handleDelete = async (id) => {
     const token = localStorage.getItem("token");
     try {
-      const response = await fetch(
-        `http://localhost:3000/api/expense/delete/${id}`,
-        {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await fetch(`/api/expense/delete/${id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       if (response.ok) {
         const data = await response.json();

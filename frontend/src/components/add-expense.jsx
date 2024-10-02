@@ -25,17 +25,14 @@ const AddExpense = () => {
     };
 
     try {
-      const response = await fetch(
-        "http://localhost:3000/api/expense/addexpense",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(newExpense),
-        }
-      );
+      const response = await fetch("/api/expense/addexpense", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(newExpense),
+      });
 
       if (response.ok) {
         const data = await response.json();
