@@ -7,15 +7,12 @@ const LeaderBoard = () => {
 
   const fetchLeaderboard = async () => {
     try {
-      const response = await fetch(
-        "http://localhost:3001/api/premium/leaderboard",
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
+      const response = await fetch("/api/premium/leaderboard", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
 
       if (!response.ok) {
         throw new Error("Failed to fetch leaderboard data");

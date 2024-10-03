@@ -11,14 +11,11 @@ const ForgotPassword = () => {
     const email = emailRef.current.value;
 
     try {
-      const response = await fetch(
-        "http://localhost:3001/api/user/forgotpassword",
-        {
-          method: "POST",
-          body: JSON.stringify({ email }),
-          headers: { "Content-Type": "application/json" },
-        }
-      );
+      const response = await fetch("/api/user/forgotpassword", {
+        method: "POST",
+        body: JSON.stringify({ email }),
+        headers: { "Content-Type": "application/json" },
+      });
 
       if (response.ok) {
         const data = await response.json();

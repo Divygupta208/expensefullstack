@@ -14,15 +14,12 @@ const ProfileView = ({ isPremiumUser, handleUserLogOut }) => {
   const handleRazorPayButtonClick = async (e) => {
     const token = localStorage.getItem("token");
 
-    const response = await fetch(
-      "http://localhost:3001/api/purchase/premiummembership",
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    const response = await fetch("/api/purchase/premiummembership", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     const data = await response.json();
 
     console.log(data);
@@ -32,7 +29,7 @@ const ProfileView = ({ isPremiumUser, handleUserLogOut }) => {
       order_id: data.order.id,
       handler: async function (response) {
         const updateResponse = await fetch(
-          "http://localhost:3001/api/purchase/updatetransactionstatus",
+          "/api/purchase/updatetransactionstatus",
           {
             method: "POST",
             headers: {
@@ -68,19 +65,16 @@ const ProfileView = ({ isPremiumUser, handleUserLogOut }) => {
     rzp1.on("payment.failed", async function (response) {
       console.log("Payment Failed: ", response);
 
-      await fetch(
-        "http://localhost:3001/api/purchase/updatetransactionstatus",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            order_id: options.order_id,
-          }),
-        }
-      );
+      await fetch("/api/purchase/updatetransactionstatus", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          order_id: options.order_id,
+        }),
+      });
 
       toast("Payment failed. Please try again.");
     });
