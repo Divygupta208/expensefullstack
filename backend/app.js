@@ -23,25 +23,18 @@ app.use(cors());
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-app.use(helmet());
-app.use(helmet.hidePoweredBy());
+// app.use(helmet());
+// app.use(helmet.hidePoweredBy());
 
 // const accessLogStream = fs.createWriteStream(
 //   path.join(__dirname, "access.log"),
 //   { flags: "a" }
 // );
 
-// const errorLogStream = fs.createWriteStream(path.join(__dirname, "error.log"), {
-//   flags: "a",
-// });
-
 // app.use(morgan("combined", { stream: accessLogStream }));
 
 app.use(express.static(path.join(__dirname, "public", "dist")));
 
-// app.use("/api", (req, res) => {
-//   res.send("Hello From Api");
-// });
 app.use("/api/user", userRoute);
 app.use("/api/expense", authenticateUser, expenseRoute);
 app.use("/api/purchase", authenticateUser, purchaseRoute);
@@ -63,17 +56,10 @@ app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "dist", "index.html"));
 });
 
-// app.use((err, req, res, next) => {
-//   const errorMessage = `${new Date().toISOString()} - Error: ${err.message}\n`;
-//   console.error(errorMessage);
-//   errorLogStream.write(errorMessage);
-//   res.status(500).json({ message: "Something went wrong!" });
-// });
-
 sequelize
   .sync()
   .then(() => {
-    app.listen(3001, () => {
+    app.listen(3000, () => {
       console.log("Server is running on port 3000");
     });
   })
@@ -82,5 +68,4 @@ sequelize
       err.message
     }\n`;
     console.error(dbErrorMessage);
-    // errorLogStream.write(dbErrorMessage);
   });

@@ -10,8 +10,8 @@ exports.purchasePremiumMembership = async (req, res) => {
 
   try {
     const razorpayInstance = new Razorpay({
-      key_id: process.env.RAZORPAY_KEY_ID,
-      key_secret: process.env.RAZORPAY_KEY_SECRET,
+      key_id: "rzp_test_cjfv3OmWGo6heA",
+      key_secret: "lNYJlWufLcNYlydECMCGsW2S",
     });
 
     const amount = 5000;
@@ -92,7 +92,7 @@ exports.updateTransactionStatus = async (req, res) => {
           email: user.email,
           isPremium: user.isPremium,
         },
-        process.env.JWT_SECRET,
+        "b2a76f7c3e5f8d1a9c3b2e5d7f6a8c9b1e2d3f4a6b7c9e8d7f6b9c1a3e5d7f6b",
         { expiresIn: "1h" }
       );
 

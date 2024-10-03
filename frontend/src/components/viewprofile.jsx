@@ -86,6 +86,12 @@ const ProfileView = ({ isPremiumUser, handleUserLogOut }) => {
     });
   };
 
+  const handlePremiumTrial = () => {
+    toast("Trial subscription activated");
+
+    dispatch(authAction.setIsPremium(true));
+  };
+
   return (
     <div className="flex flex-col items-center">
       <img
@@ -97,12 +103,20 @@ const ProfileView = ({ isPremiumUser, handleUserLogOut }) => {
       <p className="text-sm text-gray-600">{userData.email}</p>
       <p className="text-sm text-gray-600">{userData.contact}</p>
       {!isPremiumUser ? (
-        <button
-          onClick={handleRazorPayButtonClick}
-          className="mt-4 px-6 py-2 gap-1 bg-[#ff662a] text-white font-semibold rounded-md flex"
-        >
-          Buy <IoDiamond className="mt-1.5" />
-        </button>
+        <>
+          <button
+            onClick={handleRazorPayButtonClick}
+            className="mt-4 px-6 py-2 gap-1 bg-[#ff662a] text-white font-semibold rounded-md flex"
+          >
+            Buy <IoDiamond className="mt-1.5" />
+          </button>
+          <button
+            onClick={handlePremiumTrial}
+            className="mt-4 px-6 py-2 gap-1 bg-[#ff662a] text-white font-semibold rounded-md flex"
+          >
+            Premium Trial
+          </button>
+        </>
       ) : (
         <p>
           <IoDiamond />
