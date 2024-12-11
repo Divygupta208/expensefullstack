@@ -23,15 +23,15 @@ app.use(cors());
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-// app.use(helmet());
-// app.use(helmet.hidePoweredBy());
+app.use(helmet());
+app.use(helmet.hidePoweredBy());
 
-// const accessLogStream = fs.createWriteStream(
-//   path.join(__dirname, "access.log"),
-//   { flags: "a" }
-// );
+const accessLogStream = fs.createWriteStream(
+  path.join(__dirname, "access.log"),
+  { flags: "a" }
+);
 
-// app.use(morgan("combined", { stream: accessLogStream }));
+app.use(morgan("combined", { stream: accessLogStream }));
 
 app.use(express.static(path.join(__dirname, "public", "dist")));
 
