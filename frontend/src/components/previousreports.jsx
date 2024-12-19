@@ -9,7 +9,7 @@ const PreviousReports = () => {
     const handlePreviousReports = async () => {
       try {
         const response = await fetch(
-          `http://my-api.zapto.org:3000/api/premium/downloads`,
+          `https://my-api.zapto.org/api/premium/downloads`,
           {
             method: "GET",
             headers: {

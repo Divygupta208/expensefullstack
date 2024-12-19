@@ -59,8 +59,8 @@ const Signup = ({ mode }) => {
       try {
         const url =
           mode === "signup"
-            ? "http://my-api.zapto.org:3000/api/user/signup"
-            : "http://my-api.zapto.org:3000/api/user/login";
+            ? "https://my-api.zapto.org/api/user/signup"
+            : "https://my-api.zapto.org/api/user/login";
         const body =
           mode === "signup" ? { name, email, password } : { email, password };
 

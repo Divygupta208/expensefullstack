@@ -5,7 +5,7 @@ const fetchExpenses = () => {
     const token = localStorage.getItem("token");
     try {
       const response = await fetch(
-        "http://my-api.zapto.org:3000/api/expense/getexpense",
+        "https://my-api.zapto.org/api/expense/getexpense",
         {
           method: "GET",
           headers: {

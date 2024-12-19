@@ -195,7 +195,7 @@ const UserReports = () => {
   const handleDownloadReportBackend = async () => {
     try {
       const response = await fetch(
-        `http://my-api.zapto.org:3000/api/premium/reports?year=${yearFilter}&month=${monthFilter}&week=${weekFilter}`,
+        `https://my-api.zapto.org/api/premium/reports?year=${yearFilter}&month=${monthFilter}&week=${weekFilter}`,
         {
           method: "GET",
           headers: {

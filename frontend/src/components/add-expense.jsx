@@ -26,7 +26,7 @@ const AddExpense = () => {
 
     try {
       const response = await fetch(
-        "http://my-api.zapto.org:3000/api/expense/addexpense",
+        "https://my-api.zapto.org/api/expense/addexpense",
         {
           method: "POST",
           headers: {

@@ -21,7 +21,7 @@ const ResetPassword = () => {
 
     try {
       const response = await fetch(
-        `http://my-api.zapto.org:3000/api/user/resetpassword/${id}`,
+        `https://my-api.zapto.org/api/user/resetpassword/${id}`,
         {
           method: "POST",
           headers: {

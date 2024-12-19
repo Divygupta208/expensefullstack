@@ -15,7 +15,7 @@ const ProfileView = ({ isPremiumUser, handleUserLogOut }) => {
     const token = localStorage.getItem("token");
 
     const response = await fetch(
-      "http://my-api.zapto.org:3000/api/purchase/premiummembership",
+      "https://my-api.zapto.org/api/purchase/premiummembership",
       {
         method: "GET",
         headers: {
@@ -32,7 +32,7 @@ const ProfileView = ({ isPremiumUser, handleUserLogOut }) => {
       order_id: data.order.id,
       handler: async function (response) {
         const updateResponse = await fetch(
-          "http://my-api.zapto.org:3000/api/purchase/updatetransactionstatus",
+          "https://my-api.zapto.org/api/purchase/updatetransactionstatus",
           {
             method: "POST",
             headers: {
@@ -69,7 +69,7 @@ const ProfileView = ({ isPremiumUser, handleUserLogOut }) => {
       console.log("Payment Failed: ", response);
 
       await fetch(
-        "http://my-api.zapto.org:3000/api/purchase/updatetransactionstatus",
+        "https://my-api.zapto.org/api/purchase/updatetransactionstatus",
         {
           method: "POST",
           headers: {

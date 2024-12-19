@@ -8,7 +8,7 @@ const LeaderBoard = () => {
   const fetchLeaderboard = async () => {
     try {
       const response = await fetch(
-        "http://my-api.zapto.org:3000/api/premium/leaderboard",
+        "https://my-api.zapto.org/api/premium/leaderboard",
         {
           method: "GET",
           headers: {

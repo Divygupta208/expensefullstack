@@ -25,7 +25,7 @@ const ExpenseList = ({ overallexpenses, showAddForm }) => {
     const token = localStorage.getItem("token");
     try {
       const response = await fetch(
-        `http://my-api.zapto.org:3000/api/expense/delete/${id}`,
+        `https://my-api.zapto.org/api/expense/delete/${id}`,
         {
           method: "DELETE",
           headers: {

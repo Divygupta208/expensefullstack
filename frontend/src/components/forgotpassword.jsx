@@ -12,7 +12,7 @@ const ForgotPassword = () => {
 
     try {
       const response = await fetch(
-        "http://my-api.zapto.org:3000/api/user/forgotpassword",
+        "https://my-api.zapto.org/api/user/forgotpassword",
         {
           method: "POST",
           body: JSON.stringify({ email }),
