@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import LocomotiveScroll from "locomotive-scroll";
 import { useLocation } from "react-router-dom";
-import Signup from "../components/Signup";
+import Signup from "../components/signup";
 import "locomotive-scroll/dist/locomotive-scroll.css"; // Locomotive Scroll CSS
 import Footer from "../components/footer";
 import { motion } from "framer-motion";
