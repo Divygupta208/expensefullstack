@@ -120,11 +120,7 @@ const NavigationBar = () => {
       <nav className="hidden md:block fixed w-full top-0 bg-white text-black p-4 shadow-xl font-semibold z-50">
         <div className="container mx-auto flex justify-between items-center">
           <div className="text-lg font-bold flex items-center">
-            <img
-              src="public/logoipsum-223.svg"
-              className="w-10 h-10"
-              alt="Logo"
-            />
+            <img src="/logoipsum-223.svg" className="w-10 h-10" alt="Logo" />
             <span className="ml-2">ExpenseDaily</span>
           </div>
 
